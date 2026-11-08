@@ -1,0 +1,125 @@
+{
+ "versi": 1,
+ "paket": [
+  {
+   "id": "SMP-BIN-TO01",
+   "mapel": "BIN",
+   "nama": "Try Out 1 - Bahasa Indonesia",
+   "nomor": 1,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 287054,
+   "ukuran_bahas": 23984,
+   "sha_isi": "8b657e2a2b593afa"
+  },
+  {
+   "id": "SMP-BIN-TO02",
+   "mapel": "BIN",
+   "nama": "Try Out 2 - Bahasa Indonesia",
+   "nomor": 2,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 369262,
+   "ukuran_bahas": 25824,
+   "sha_isi": "712357b75a0199af"
+  },
+  {
+   "id": "SMP-BIN-TO03",
+   "mapel": "BIN",
+   "nama": "Try Out 3 - Bahasa Indonesia",
+   "nomor": 3,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 442278,
+   "ukuran_bahas": 24236,
+   "sha_isi": "162a79a9cbc672ce"
+  },
+  {
+   "id": "SMP-BIN-TO04",
+   "mapel": "BIN",
+   "nama": "Try Out 4 - Bahasa Indonesia",
+   "nomor": 4,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 440790,
+   "ukuran_bahas": 23440,
+   "sha_isi": "b223c8beb6151ab6"
+  },
+  {
+   "id": "SMP-BIN-TO05",
+   "mapel": "BIN",
+   "nama": "Try Out 5 - Bahasa Indonesia",
+   "nomor": 5,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 541634,
+   "ukuran_bahas": 24632,
+   "sha_isi": "c7e9d4ae14b612be"
+  },
+  {
+   "id": "SMP-MAT-TO01",
+   "mapel": "MAT",
+   "nama": "Try Out 1 - Matematika",
+   "nomor": 1,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1365242,
+   "ukuran_bahas": 26020,
+   "sha_isi": "96b1dd8cab899f9a"
+  },
+  {
+   "id": "SMP-MAT-TO02",
+   "mapel": "MAT",
+   "nama": "Try Out 2 - Matematika",
+   "nomor": 2,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1101634,
+   "ukuran_bahas": 21924,
+   "sha_isi": "f268f3ba70f3ebfe"
+  },
+  {
+   "id": "SMP-MAT-TO03",
+   "mapel": "MAT",
+   "nama": "Try Out 3 - Matematika",
+   "nomor": 3,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1018546,
+   "ukuran_bahas": 21484,
+   "sha_isi": "6da62b2c0ef62403"
+  },
+  {
+   "id": "SMP-MAT-TO04",
+   "mapel": "MAT",
+   "nama": "Try Out 4 - Matematika",
+   "nomor": 4,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 967354,
+   "ukuran_bahas": 23860,
+   "sha_isi": "00622baa5441491f"
+  },
+  {
+   "id": "SMP-MAT-TO05",
+   "mapel": "MAT",
+   "nama": "Try Out 5 - Matematika",
+   "nomor": 5,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 840266,
+   "ukuran_bahas": 21648,
+   "sha_isi": "f4b44fd7a9423950"
+  }
+ ]
+}
