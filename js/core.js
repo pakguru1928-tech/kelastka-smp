@@ -1,7 +1,7 @@
 /* KelasTKA+ SMP — inti aplikasi: API, penyimpanan, brankas paket, router, komponen UI, Excel, grafik, cetak. */
 (function () {
   'use strict';
-  const VERSI = '1.0.0', API_V = 1;
+  const VERSI = '1.4.0', API_V = 1;
   const CFG = window.KTKA_CONFIG || {};
   const App = window.App = { VERSI, hal: {}, modulMuat: {} };
 
@@ -166,6 +166,7 @@
     } finally { clearTimeout(tm); }
     const rtt = performance.now() - t0;
     if (res.st && rtt < 8000) { selisihServer = Math.round(res.st - rtt / 2 - Date.now()); LS.set('selisih', selisihServer); }
+    (App.perf = App.perf || []).push({ a, total: Math.round(rtt), server: res.ms }); if (App.perf.length > 60) App.perf.shift();
     if (window.KTKA_DEBUG) console.log('[api]', a, Math.round(rtt) + ' ms', 'server ' + res.ms + ' ms');
     return res;
   }
@@ -415,6 +416,7 @@
     ['pantau', 'pengawas', ['guru', 'admin', 'pengawas']], ['pantau/:sesi', 'pengawas', ['guru', 'admin', 'pengawas']],
     ['bank', 'bank', ['guru', 'admin']], ['bank/:id', 'bank', ['guru', 'admin']], ['generator', 'bank', ['guru', 'admin']],
     ['laporan', 'laporan', ['guru', 'admin']], ['laporan/:keg', 'laporan', ['guru', 'admin']], ['laporan-siswa/:id', 'laporan', ['guru', 'admin']],
+    ['survei', 'survei', ['guru', 'admin', 'pengawas']], ['survei/:id', 'survei', ['guru', 'admin']], ['isi-survei/:id', 'survei', ['siswa', 'guru', 'admin', 'pengawas']],
     ['siswa', 'admin', ['admin']], ['staf', 'admin', ['admin']], ['pengaturan', 'admin', ['admin']], ['sistem', 'admin', ['admin']],
     ['akun', 'masuk', ['guru', 'admin', 'pengawas', 'siswa']], ['masuk', 'masuk', null]
   ];
@@ -422,13 +424,13 @@
   const NAV = {
     siswa: [['beranda', 'rumah', 'Beranda'], ['latihan', 'target', 'Latihan'], ['hasil', 'piala', 'Hasil'], ['laporan-saya', 'grafik', 'Laporan']],
     guru: [['dasbor', 'rumah', 'Dasbor', 'Utama'], ['kegiatan', 'kalender', 'Kegiatan & Sesi'], ['pantau', 'monitor', 'Pantau Sesi'], ['paket', 'tumpuk', 'Paket Soal'],
-      ['bank', 'basis', 'Bank Soal', 'Soal'], ['generator', 'kilau', 'Generator'], ['laporan', 'grafik', 'Laporan', 'Hasil']],
-    pengawas: [['pantau', 'monitor', 'Pantau Sesi', 'Utama'], ['akun', 'pengguna', 'Akun']],
+      ['bank', 'basis', 'Bank Soal', 'Soal'], ['generator', 'kilau', 'Generator'], ['laporan', 'grafik', 'Laporan', 'Hasil'], ['survei', 'tanda', 'Survei']],
+    pengawas: [['pantau', 'monitor', 'Pantau Sesi', 'Utama'], ['survei', 'tanda', 'Survei'], ['akun', 'pengguna', 'Akun']],
     admin: [['dasbor', 'rumah', 'Dasbor', 'Utama'], ['kegiatan', 'kalender', 'Kegiatan & Sesi'], ['pantau', 'monitor', 'Pantau Sesi'], ['paket', 'tumpuk', 'Paket Soal'],
-      ['bank', 'basis', 'Bank Soal', 'Soal'], ['generator', 'kilau', 'Generator'], ['laporan', 'grafik', 'Laporan', 'Hasil'],
+      ['bank', 'basis', 'Bank Soal', 'Soal'], ['generator', 'kilau', 'Generator'], ['laporan', 'grafik', 'Laporan', 'Hasil'], ['survei', 'tanda', 'Survei'],
       ['siswa', 'grup', 'Data Siswa', 'Administrasi'], ['staf', 'pengguna', 'Akun Staf'], ['pengaturan', 'roda', 'Pengaturan'], ['sistem', 'perisai', 'Sistem & Cadangan']]
   };
-  const BAWAH = { guru: ['dasbor', 'kegiatan', 'pantau', 'bank', 'laporan'], admin: ['dasbor', 'kegiatan', 'pantau', 'laporan'], pengawas: ['pantau', 'akun'], siswa: ['beranda', 'latihan', 'hasil', 'laporan-saya'] };
+  const BAWAH = { guru: ['dasbor', 'kegiatan', 'pantau', 'bank', 'laporan'], admin: ['dasbor', 'kegiatan', 'pantau', 'laporan'], pengawas: ['pantau', 'survei', 'akun'], siswa: ['beranda', 'latihan', 'hasil', 'laporan-saya'] };
   const PERAN_NAMA = { admin: 'Admin', guru: 'Guru', pengawas: 'Pengawas', siswa: 'Siswa' };
   App.PERAN_NAMA = PERAN_NAMA;
 
@@ -463,7 +465,7 @@
     if (r.peran && r.peran.indexOf(Sesi.peran) < 0) return App.ke(BERANDA[Sesi.peran] || 'masuk', true);
     App.henti();
     halKini = r.pola;
-    const tanpaShell = r.pola === 'masuk' || r.pola === 'ujian/:sesi';
+    const tanpaShell = r.pola === 'masuk' || r.pola === 'ujian/:sesi' || r.pola === 'isi-survei/:id';
     const main = tanpaShell ? siapkanPolos() : siapkanShell(path);
     try {
       await App.modul(r.modul);
@@ -586,7 +588,7 @@
         reg.addEventListener('updatefound', () => {
           const nw = reg.installing;
           nw && nw.addEventListener('statechange', () => {
-            if (nw.state === 'installed' && navigator.serviceWorker.controller && halKini !== 'ujian/:sesi')
+            if (nw.state === 'installed' && navigator.serviceWorker.controller && halKini !== 'ujian/:sesi' && halKini !== 'isi-survei/:id')
               toast('Versi baru aplikasi siap. Muat ulang halaman untuk memakai.', 'info', 8000);
           });
         });
@@ -779,6 +781,30 @@
     const tarik = api('app.konfig', {}, { tanpaUlang: true }).then(k => { App.konfig = k; LS.set('konfig', k); return k; }).catch(() => App.konfig);
     return App.konfig ? (tarik, App.konfig) : tarik;
   };
+  // =========================================================== perbesar gambar soal/bacaan (ketuk gambar)
+  function perbesarGambar(img) {
+    if (document.querySelector('.zoom-gb')) return;
+    const o = document.createElement('div'); o.className = 'zoom-gb'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Gambar diperbesar');
+    o.innerHTML = String(h`<div class="zg-atas"><span>Geser untuk melihat bagian lain · ketuk gambar untuk ukuran pas layar</span><button type="button" class="zg-tutup" aria-label="Tutup gambar">${ikon('silang')}</button></div><div class="zg-isi"><img alt=""></div>`);
+    const im = o.querySelector('img'), isi = o.querySelector('.zg-isi');
+    im.src = img.currentSrc || img.src; im.alt = img.alt || '';
+    const nw = img.naturalWidth || img.width * 2, besar = Math.min(nw, Math.max(Math.round(nw / 2), Math.round(innerWidth * 2)));
+    let penuh = true;
+    const atur = () => { im.style.width = penuh ? besar + 'px' : '100%'; isi.classList.toggle('pas', !penuh); };
+    atur();
+    const tutup = () => { o.remove(); document.removeEventListener('keydown', kd); };
+    const kd = e => { if (e.key === 'Escape') tutup(); };
+    o.addEventListener('click', e => { if (e.target.closest('.zg-tutup') || e.target === o) tutup(); else if (e.target === im) { penuh = !penuh; atur(); } });
+    document.addEventListener('keydown', kd);
+    document.body.appendChild(o);
+    setTimeout(() => { isi.scrollLeft = 0; isi.scrollTop = 0; }, 0);
+  }
+  document.addEventListener('click', e => {
+    const img = e.target.closest && e.target.closest('.teks figure img');
+    if (!img || e.target.closest('button, a, .zoom-gb') || img.closest('.ciut')) return;
+    perbesarGambar(img);
+  });
+
   async function mulai() {
     Aktif.init();
     if (!urlSiap()) {

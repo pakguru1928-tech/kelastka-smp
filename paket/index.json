@@ -8,10 +8,10 @@
    "nomor": 1,
    "durasi": 75,
    "jumlah": 30,
-   "versi": 1,
-   "ukuran_isi": 287054,
+   "versi": 2,
+   "ukuran_isi": 849134,
    "ukuran_bahas": 23984,
-   "sha_isi": "8b657e2a2b593afa"
+   "sha_isi": "5994ad9b21cf469f"
   },
   {
    "id": "SMP-BIN-TO02",
@@ -20,10 +20,10 @@
    "nomor": 2,
    "durasi": 75,
    "jumlah": 30,
-   "versi": 1,
-   "ukuran_isi": 369262,
+   "versi": 2,
+   "ukuran_isi": 1334094,
    "ukuran_bahas": 25824,
-   "sha_isi": "712357b75a0199af"
+   "sha_isi": "c87443cb9dc2da62"
   },
   {
    "id": "SMP-BIN-TO03",
@@ -32,10 +32,10 @@
    "nomor": 3,
    "durasi": 75,
    "jumlah": 30,
-   "versi": 1,
-   "ukuran_isi": 442278,
+   "versi": 2,
+   "ukuran_isi": 1593654,
    "ukuran_bahas": 24236,
-   "sha_isi": "162a79a9cbc672ce"
+   "sha_isi": "d9c880c6884973ab"
   },
   {
    "id": "SMP-BIN-TO04",
@@ -44,10 +44,10 @@
    "nomor": 4,
    "durasi": 75,
    "jumlah": 30,
-   "versi": 1,
-   "ukuran_isi": 440790,
+   "versi": 2,
+   "ukuran_isi": 1717758,
    "ukuran_bahas": 23440,
-   "sha_isi": "b223c8beb6151ab6"
+   "sha_isi": "7cb62176a3340032"
   },
   {
    "id": "SMP-BIN-TO05",
@@ -56,10 +56,70 @@
    "nomor": 5,
    "durasi": 75,
    "jumlah": 30,
-   "versi": 1,
-   "ukuran_isi": 541634,
+   "versi": 2,
+   "ukuran_isi": 1499746,
    "ukuran_bahas": 24632,
-   "sha_isi": "c7e9d4ae14b612be"
+   "sha_isi": "3d5f3c56919221a8"
+  },
+  {
+   "id": "SMP-BIN-TO06",
+   "mapel": "BIN",
+   "nama": "Try Out 6 - Bahasa Indonesia",
+   "nomor": 6,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 2,
+   "ukuran_isi": 1633874,
+   "ukuran_bahas": 26620,
+   "sha_isi": "65fd3d8cad00ea62"
+  },
+  {
+   "id": "SMP-BIN-TO07",
+   "mapel": "BIN",
+   "nama": "Try Out 7 - Bahasa Indonesia",
+   "nomor": 7,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 2,
+   "ukuran_isi": 1462458,
+   "ukuran_bahas": 23556,
+   "sha_isi": "abeb060e401ef304"
+  },
+  {
+   "id": "SMP-BIN-TO08",
+   "mapel": "BIN",
+   "nama": "Try Out 8 - Bahasa Indonesia",
+   "nomor": 8,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 2,
+   "ukuran_isi": 1534830,
+   "ukuran_bahas": 23508,
+   "sha_isi": "8f2c56de3a465acd"
+  },
+  {
+   "id": "SMP-BIN-TO09",
+   "mapel": "BIN",
+   "nama": "Try Out 9 - Bahasa Indonesia",
+   "nomor": 9,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 2,
+   "ukuran_isi": 1869786,
+   "ukuran_bahas": 27180,
+   "sha_isi": "08115fe5a16a552f"
+  },
+  {
+   "id": "SMP-BIN-TO10",
+   "mapel": "BIN",
+   "nama": "Try Out 10 - Bahasa Indonesia",
+   "nomor": 10,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 2,
+   "ukuran_isi": 1902078,
+   "ukuran_bahas": 25804,
+   "sha_isi": "1687a208c514242c"
   },
   {
    "id": "SMP-MAT-TO01",
@@ -71,7 +131,7 @@
    "versi": 1,
    "ukuran_isi": 1365242,
    "ukuran_bahas": 26020,
-   "sha_isi": "96b1dd8cab899f9a"
+   "sha_isi": "e3fd1d17ba332612"
   },
   {
    "id": "SMP-MAT-TO02",
@@ -83,7 +143,7 @@
    "versi": 1,
    "ukuran_isi": 1101634,
    "ukuran_bahas": 21924,
-   "sha_isi": "f268f3ba70f3ebfe"
+   "sha_isi": "f572fe30c6b808f0"
   },
   {
    "id": "SMP-MAT-TO03",
@@ -95,7 +155,7 @@
    "versi": 1,
    "ukuran_isi": 1018546,
    "ukuran_bahas": 21484,
-   "sha_isi": "6da62b2c0ef62403"
+   "sha_isi": "fd55fcacf02457c2"
   },
   {
    "id": "SMP-MAT-TO04",
@@ -107,7 +167,7 @@
    "versi": 1,
    "ukuran_isi": 967354,
    "ukuran_bahas": 23860,
-   "sha_isi": "00622baa5441491f"
+   "sha_isi": "603e0f96db2f1fc2"
   },
   {
    "id": "SMP-MAT-TO05",
@@ -119,7 +179,67 @@
    "versi": 1,
    "ukuran_isi": 840266,
    "ukuran_bahas": 21648,
-   "sha_isi": "f4b44fd7a9423950"
+   "sha_isi": "fc640acf97d0f895"
+  },
+  {
+   "id": "SMP-MAT-TO06",
+   "mapel": "MAT",
+   "nama": "Try Out 6 - Matematika",
+   "nomor": 6,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1147090,
+   "ukuran_bahas": 23924,
+   "sha_isi": "ecb76a36e7f31046"
+  },
+  {
+   "id": "SMP-MAT-TO07",
+   "mapel": "MAT",
+   "nama": "Try Out 7 - Matematika",
+   "nomor": 7,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 890534,
+   "ukuran_bahas": 20940,
+   "sha_isi": "28f39c6ee45028ac"
+  },
+  {
+   "id": "SMP-MAT-TO08",
+   "mapel": "MAT",
+   "nama": "Try Out 8 - Matematika",
+   "nomor": 8,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1176970,
+   "ukuran_bahas": 24124,
+   "sha_isi": "066ce6a4bd713d8b"
+  },
+  {
+   "id": "SMP-MAT-TO09",
+   "mapel": "MAT",
+   "nama": "Try Out 9 - Matematika",
+   "nomor": 9,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1134562,
+   "ukuran_bahas": 21088,
+   "sha_isi": "55ace8c41d9ead9c"
+  },
+  {
+   "id": "SMP-MAT-TO10",
+   "mapel": "MAT",
+   "nama": "Try Out 10 - Matematika",
+   "nomor": 10,
+   "durasi": 75,
+   "jumlah": 30,
+   "versi": 1,
+   "ukuran_isi": 1420770,
+   "ukuran_bahas": 24636,
+   "sha_isi": "e6eeeb920261bbee"
   }
  ]
 }

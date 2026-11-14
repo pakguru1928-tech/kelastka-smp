@@ -173,7 +173,7 @@
       if (s) {
         const baru = stimTerakhir !== b.stim;
         elBacaan.innerHTML = String(h`<div class="tempel ${mobil && !baru ? 'ciut' : ''}" id="bacaan-isi">
-          <div class="label-bacaan">${ikon('buku')} Bacaan untuk soal ${urut.filter(x => x.b.stim === b.stim).map(x => urut.indexOf(x) + 1).join(', ')}</div>
+          <div class="label-bacaan">${ikon('buku')} Bacaan</div>
           ${Soal.htmlStimulus(s, P.ctx)}</div>
           ${mobil ? h`<button class="btn garis kecil penuh" id="btn-ciut" style="margin-top:8px">${ikon('buku')} ${!baru ? 'Buka bacaan' : 'Tutup bacaan'}</button>` : ''}`);
         const bc = $('#btn-ciut'); if (bc) bc.onclick = () => { const t = $('#bacaan-isi'); t.classList.toggle('ciut'); bc.innerHTML = String(h`${ikon('buku')} ${t.classList.contains('ciut') ? 'Buka bacaan' : 'Tutup bacaan'}`); };
@@ -288,7 +288,15 @@
       if (L.pel >= (aturan.batas || 3)) kunci();
       else modal({ judul: 'Peringatan', isi: h`<p>Anda meninggalkan halaman ujian selama ${Math.round(det)} detik. Ini tercatat sebagai pelanggaran <b>${L.pel} dari ${aturan.batas}</b>.</p><p class="kecil">Jika mencapai batas, layar akan dikunci dan hanya pengawas yang dapat membukanya.</p>`, aksi: [{ label: 'Saya mengerti', kelas: 'biru', nilai: 1 }] });
     }
-    function onVis() { if (document.hidden) hilangSejak = Date.now(); else if (hilangSejak) { const d = (Date.now() - hilangSejak) / 1000; hilangSejak = 0; blurSejak = 0; catatPindah(d, 'pindah'); } }
+    // waktu meninggalkan halaman juga dicatat di perangkat: bila HP menutup/memuat ulang aplikasi saat siswa pindah aplikasi,
+    // lamanya tetap terhitung ketika halaman ujian dibuka kembali (PRD F-13).
+    const kunciHilang = 'hilang|' + (App.Sesi.me || {}).u + '|' + sesi;
+    function onVis() {
+      if (document.hidden) { hilangSejak = Date.now(); if (mulaiKerja && !selesai) LS.set(kunciHilang, hilangSejak); }
+      else if (hilangSejak) { const d = (Date.now() - hilangSejak) / 1000; hilangSejak = 0; blurSejak = 0; LS.del(kunciHilang); catatPindah(d, 'pindah'); }
+    }
+    function onPageHide() { if (mulaiKerja && !selesai && !LS.get(kunciHilang)) LS.set(kunciHilang, Date.now()); }
+    addEventListener('pagehide', onPageHide);
     function onBlur() { if (!sentuh && !document.hidden) blurSejak = Date.now(); }
     function onFocus() { if (blurSejak && !hilangSejak) { const d = (Date.now() - blurSejak) / 1000; blurSejak = 0; catatPindah(d, 'fokus'); } }
     document.addEventListener('visibilitychange', onVis); addEventListener('blur', onBlur); addEventListener('focus', onFocus);
@@ -306,13 +314,30 @@
       document.body.appendChild(t);
     }
     function tutupKunci() { const t = $('#tirai-kunci'); if (t) t.remove(); }
+    // layar penuh: wajib di komputer (PRD F-15), dianjurkan di HP. Keluar layar penuh di komputer menutup soal sampai siswa kembali.
+    const bisaPenuh = !!(document.documentElement.requestFullscreen && document.fullscreenEnabled);
     function layarPenuh(paksa) {
       const d = document.documentElement;
-      if (document.fullscreenElement) return paksa ? document.exitFullscreen() : null;
-      if (d.requestFullscreen) d.requestFullscreen().catch(() => {});
+      if (document.fullscreenElement) return paksa && sentuh ? document.exitFullscreen() : null;
+      if (bisaPenuh) return d.requestFullscreen().catch(() => { cekPenuh(); });
+    }
+    function cekPenuh() {
+      const perlu = bisaPenuh && !sentuh && mulaiKerja && !selesai && !document.fullscreenElement;
+      let t = $('#tirai-penuh');
+      if (!perlu) { if (t) t.remove(); return; }
+      if (t) return;
+      t = document.createElement('div'); t.className = 'tirai-kunci'; t.id = 'tirai-penuh'; t.style.zIndex = 85; t.style.background = '#F3F6FC';
+      t.innerHTML = String(h`<div class="kotak"><div class="ik-besar">${ikon('penuh')}</div><h2>Kembali ke layar penuh</h2>
+        <p>Try out di komputer wajib dikerjakan dalam layar penuh. Jawaban Anda aman.</p>
+        <button class="btn emas besar" id="btn-kembali-penuh">${ikon('penuh')} Lanjutkan dalam layar penuh</button></div>`);
+      document.body.appendChild(t);
+      $('#btn-kembali-penuh').onclick = () => layarPenuh();
     }
     document.addEventListener('fullscreenchange', onFs);
-    function onFs() { if (!document.fullscreenElement && mulaiKerja && !selesai && !sentuh) L.ev.push({ j: 'keluar_layar_penuh', d: 0, i: '' }); }
+    function onFs() {
+      if (!document.fullscreenElement && mulaiKerja && !selesai && !sentuh) { L.ev.push({ j: 'keluar_layar_penuh', d: 0, i: '' }); simpanLokal(); }
+      cekPenuh();
+    }
 
     // ---------- selesai
     async function konfirmasiSelesai() {
@@ -367,7 +392,8 @@
     function bersih() {
       App.sebelumPindah = null; App._renderUlang = null;
       document.removeEventListener('visibilitychange', onVis); removeEventListener('blur', onBlur); removeEventListener('focus', onFocus);
-      removeEventListener('online', onOnline); removeEventListener('offline', onOffline); removeEventListener('beforeunload', onUnload);
+      removeEventListener('online', onOnline); removeEventListener('offline', onOffline); removeEventListener('beforeunload', onUnload); removeEventListener('pagehide', onPageHide);
+      LS.del(kunciHilang); const tp = $('#tirai-penuh'); if (tp) tp.remove();
       document.removeEventListener('keydown', kunciTombol); document.removeEventListener('fullscreenchange', onFs);
     }
     function onUnload(e) { if (!selesai) { IDB.set(kunciIDB, { m: Object.assign({}, m, { batas_waktu: batasWaktu }), L, mulai: mulaiKerja }); e.preventDefault(); e.returnValue = ''; } }
@@ -393,9 +419,14 @@
           <li>Jangan berpindah aplikasi/tab. Setelah ${aturan.batas} kali, layar dikunci sampai dibuka pengawas.</li>
           <li>Tandai <b>Ragu-ragu</b> untuk soal yang ingin diperiksa lagi. Kumpulkan dengan tombol <b>Selesai</b>.</li></ul>`,
         aksi: [{ label: 'Mulai mengerjakan', kelas: 'emas besar', nilai: 1, ikon: 'kanan' }] });
-      if (v && !sentuh) layarPenuh();
       mulaiKerja = true; simpanLokal();
+      if (v && !sentuh) await layarPenuh();
+    } else {
+      // dibuka kembali setelah ditutup/dimuat ulang: hitung lamanya halaman ditinggalkan
+      const t0 = Number(LS.get(kunciHilang) || 0); LS.del(kunciHilang);
+      if (t0 && !selesai) setTimeout(() => catatPindah((Date.now() - t0) / 1000, 'tutup_muat_ulang'), 600);
     }
+    cekPenuh();
     jadwalSinkron(5000 + Math.random() * 25000);
   };
 

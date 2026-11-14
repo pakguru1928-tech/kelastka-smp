@@ -9,17 +9,43 @@
     const tab = App.LS.get('tab_masuk', 'siswa');
     el.innerHTML = String(h`<div class="masuk">
       <section class="pahlawan">
-        <div style="position:relative;z-index:1">
-          <img class="logo" src="./assets/logo-horizontal.webp" alt="KelasTKA+ SMP" width="460" height="153">
-          <h1>Latihan & Try Out TKA SMP</h1>
-          <p>${k.nama_sekolah || 'Sekolah Anda'}${k.tahun_ajaran ? ' · Tahun ajaran ' + k.tahun_ajaran : ''}</p>
-          <div class="poin">
-            <div>${ikon('buku')} Bahasa Indonesia dan Matematika, 30 soal per paket</div>
-            <div>${ikon('perisai')} Jawaban tersimpan otomatis, aman walau sinyal putus</div>
-            <div>${ikon('grafik')} Hasil dan pembahasan rinci setelah kegiatan ditutup</div>
+        <svg class="ph-pola" aria-hidden="true"><defs><pattern id="ph-plus" width="56" height="56" patternUnits="userSpaceOnUse">
+          <path d="M28 20v16M20 28h16" stroke="rgba(252,185,0,.16)" stroke-width="2.4" stroke-linecap="round"/></pattern></defs><rect width="100%" height="100%" fill="url(#ph-plus)"/></svg>
+        <div class="ph-kepala">
+          <img class="logo" src="./assets/logo-horizontal.webp" alt="KelasTKA+ SMP" width="300" height="100">
+          <span class="ph-sekolah">${k.nama_sekolah || 'Sekolah Anda'}${k.tahun_ajaran ? ' · TA ' + k.tahun_ajaran : ''}</span>
+        </div>
+        <div class="ph-tengah">
+          <div class="ph-teks">
+            <span class="ph-eyebrow">Tes Kemampuan Akademik · SMP</span>
+            <h1>Berlatih tenang,<br><span>siap TKA</span> dengan percaya diri.</h1>
+            <p>Bahasa Indonesia dan Matematika dalam format seperti TKA: pilihan ganda, pilihan ganda kompleks, dan kategori — lengkap dengan pembahasan.</p>
+          </div>
+          <div class="ph-adegan" aria-hidden="true">
+            <div class="ph-kartu ph-soal">
+              <div class="ph-baris"><span class="ph-no">12</span><span class="ph-pil">PGK</span><span class="ph-timer">${ikon('jam')}74:59</span></div>
+              <div class="ph-garis l1"></div><div class="ph-garis l2"></div>
+              <div class="ph-op"><b>A</b><i></i></div>
+              <div class="ph-op on"><b>B</b><i></i>${ikon('centang')}</div>
+              <div class="ph-op on"><b>C</b><i></i>${ikon('centang')}</div>
+              <div class="ph-op"><b>D</b><i></i></div>
+            </div>
+            <div class="ph-kartu ph-nilai">
+              <svg viewBox="0 0 64 64" width="58" height="58"><circle cx="32" cy="32" r="26" fill="none" stroke="#EEF2F8" stroke-width="7"/>
+                <circle cx="32" cy="32" r="26" fill="none" stroke="#16A34A" stroke-width="7" stroke-linecap="round" stroke-dasharray="150 164" transform="rotate(-90 32 32)"/></svg>
+              <div><small>Nilai try out</small><b>91,67</b><span class="pil hijau">Baik</span></div>
+            </div>
+            <div class="ph-kartu ph-mapel"><span>Aa</span><div><b>Bahasa Indonesia</b><small>Pemahaman teks</small></div></div>
+            <div class="ph-kartu ph-mapel ph-mat"><span>∑</span><div><b>Matematika</b><small>Bilangan · Aljabar</small></div></div>
+            <div class="ph-kartu ph-resi">${ikon('perisai')}<div><b>Tersimpan otomatis</b><small>aman walau sinyal putus</small></div></div>
           </div>
         </div>
-        <p class="kecil" style="color:#A5B4FC;position:relative;z-index:1;margin:24px 0 0">Aplikasi latihan sekolah · versi ${App.VERSI}</p>
+        <div class="ph-kaki">
+          <div>${ikon('buku')}<span><b>10 paket</b> try out</span></div>
+          <div>${ikon('lampu')}<span><b>Pembahasan</b> tiap soal</span></div>
+          <div>${ikon('grafik')}<span><b>Laporan</b> rinci</span></div>
+          <small>v${App.VERSI}</small>
+        </div>
       </section>
       <section class="form">
         <div class="seg" role="tablist" style="margin-bottom:20px;width:100%">

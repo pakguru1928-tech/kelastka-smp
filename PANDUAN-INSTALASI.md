@@ -51,7 +51,7 @@ Aplikasi dirancang hemat agar 400 siswa muat dalam batas itu (lihat Tahap 7).
 5. Klik **Simpan** (ikon disket). Pastikan tidak ada tanda galat merah.
 6. Di bilah atas, pilih fungsi **`setupAppEnvironment`**, lalu klik **Jalankan**.
    - Pertama kali, Google meminta izin. Pilih akun sekolah → **Lanjutan** → **Buka KelasTKA+ SMP (tidak aman)** → **Izinkan**. Peringatan ini muncul karena skrip buatan sendiri belum diverifikasi Google. Ini wajar.
-   - Tunggu sampai **Log eksekusi** menampilkan `✅ Paket resmi: 10 paket, 300 butir`.
+   - Tunggu sampai **Log eksekusi** menampilkan `✅ Paket resmi: 20 paket, 600 butir`.
 7. **Catat akun admin pertama** yang tampil di log:
 
    ```
@@ -212,6 +212,39 @@ Predikat:
   - bank soal yang sudah disetujui, plus soal berparameter.
 
   Latihan **ditutup otomatis** saat ada try out berlangsung.
+
+### Survei karakter dan lingkungan belajar
+
+Menu **Survei** berisi tiga instrumen latihan dan refleksi mutu sekolah. Ketiganya selaras dengan indikator Rapor Pendidikan. Survei murid tersedia dalam **5 paket lengkap**: setiap paket memuat semua indikator dengan pertanyaan yang berbeda.
+
+| Instrumen | Responden | Isi per paket |
+|---|---|---|
+| Survei Karakter | Murid | 46 pertanyaan, ±25 menit: 8 dimensi profil lulusan × 3 unsur (Rapor A.3.7–A.3.14) dalam bentuk situasi atau pendapat tentang tokoh rekaan, 7 Kebiasaan Anak Indonesia Hebat × 3 unsur (Rapor D.19), dan 1 butir pemeriksa ketelitian. |
+| Survei Lingkungan Belajar — Murid | Murid | 96 pertanyaan, ±25 menit: iklim keamanan, kualitas pembelajaran, kompetensi pendidik, kebinekaan, inklusivitas, kesetaraan gender, kesiapsiagaan bencana dan perubahan iklim, partisipasi, program dan kebijakan sekolah, latar belakang belajar di rumah (tidak dinilai), dan 1 butir pemeriksa ketelitian. |
+| Survei Lingkungan Belajar — Guru | Guru/staf | 21 butir: refleksi pembelajaran, kepemimpinan pembelajaran, iklim sekolah, praktik kelas, kesejahteraan guru. |
+
+Murid mengisi seperti ANBK: satu pertanyaan per layar, daftar nomor untuk berpindah, dan penghitung waktu yang hanya memberi peringatan (tidak mengirim otomatis).
+
+**Alur penggunaan**
+
+1. **Admin membuka survei.** Pilih instrumen, judul, waktu buka/tutup, dan rombel sasaran.
+2. **Responden mengisi.** Murid melihat kartu survei di Beranda. Guru mengisi lewat menu Survei.
+3. **Guru dan admin membaca laporan agregat:**
+   - indeks 0–100 per aspek;
+   - kategori Baik/Sedang/Kurang (ambang internal 70 dan 50);
+   - rangkuman per rombel;
+   - sebaran jawaban per butir;
+   - kesungguhan pengisian: respons yang terlalu cepat, salah menjawab butir pemeriksa, berpola seragam, atau tidak konsisten ditandai dan tidak dihitung dalam indeks (jumlahnya dilaporkan per rombel, tanpa nama);
+   - rekomendasi tindak lanjut;
+   - cetak A4 dan Excel.
+
+**Kerahasiaan responden**
+
+- Identitas disimpan sebagai kode acak. Guru dan admin tidak dapat melihat jawaban perorangan.
+- Rangkuman per rombel baru tampil bila respondennya minimal 5 orang.
+- Di akhir survei, murid dapat **secara sukarela** meminta dihubungi guru BK. Hanya pada pilihan ini namanya tercatat, dan hanya admin yang dapat membacanya, di menu Survei → Permintaan bantuan.
+
+Hasil survei ini untuk latihan dan refleksi mutu sekolah, bukan data resmi, dan angkanya tidak sama dengan angka Rapor Pendidikan.
 
 ---
 

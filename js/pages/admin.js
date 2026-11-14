@@ -157,7 +157,7 @@
         <div class="kartu aksen"><h3>${ikon('kunci')} Kunci API Gemini (generator AI guru)</h3>
           <p class="kecil">Disimpan aman di server (Script Properties), tidak pernah dikirim ke peramban. Buat kunci gratis di Google AI Studio dengan akun sekolah.</p>
           <p>Status: ${G.ada ? h`<span class="pil hijau">Terpasang</span> <span class="mono">${G.samar}</span>` : h`<span class="pil">Belum diisi</span>`}</p>
-          <div class="baris"><input class="in" id="gemini" type="password" autocomplete="off" placeholder="${G.ada ? 'Isi untuk mengganti' : 'Tempel kunci API'}" style="max-width:340px">
+          <div class="baris"><input class="in" id="gemini" type="text" name="kunci-api-gemini" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" style="-webkit-text-security:disc" placeholder="${G.ada ? 'Isi untuk mengganti' : 'Tempel kunci API'}" style="max-width:340px">
             <button class="btn biru" data-aksi="kunciAi">Simpan kunci</button>${G.ada ? h`<button class="btn garis" data-aksi="hapusAi">Hapus</button>` : ''}</div></div></div></form>`);
     App.aksi(el, {
       simpan: b => App.sibuk(b, async () => { const f = App.nilaiForm($('#f-set', el)); delete f.gemini; await api('set.simpan', { setelan: f }); App.konfig = await api('app.konfig', {}); App.LS.set('konfig', App.konfig); }),
@@ -181,6 +181,7 @@
           <div class="daftar-menu">
             <button class="item-menu" data-aksi="flush">${ikon('segar')}<span><b>Proses jawaban sekarang</b><br><small>Menulis jawaban dari cache ke spreadsheet dan menghitung nilai (biasanya otomatis tiap menit).</small></span></button>
             <button class="item-menu" data-aksi="sinkron">${ikon('tumpuk')}<span><b>Sinkronkan paket resmi</b><br><small>Memasang/memperbarui paket resmi KelasTKA+ dari berkas server.</small></span></button>
+            <button class="item-menu" data-aksi="ujiCepat">${ikon('petir')}<span><b>Uji kecepatan</b><br><small>Membedakan lambat karena jaringan atau karena server.</small></span></button>
             <button class="item-menu" data-aksi="bersihLokal">${ikon('hapus')}<span><b>Kosongkan tampilan tersimpan di perangkat ini</b></span></button></div></div>
         <div class="kartu"><h3>Cadangan (Google Drive)</h3>${cad.length ? cad.slice(0, 10).map(c => h`<a class="log-item" href="${c.url}" target="_blank" rel="noopener">${ikon('dokumen')}<div><b>${c.nama}</b><div class="kecil">${App.tglJam(c.waktu)}</div></div></a>`) : h`<p class="kecil">Belum ada cadangan. Cadangan otomatis dibuat setiap hari pukul 01.00.</p>`}</div></div>
       <div class="kartu" style="margin-top:16px"><h3>Jejak audit</h3><div class="tabel-wadah" style="max-height:420px;overflow:auto"><table class="t resp"><thead><tr><th>Waktu</th><th>Pengguna</th><th>Aksi</th><th>Detail</th></tr></thead><tbody>
@@ -189,7 +190,16 @@
       cadangan: b => App.sibuk(b, async () => { await api('cadangan.buat', {}, { batas: 120000 }); App.render(); }),
       flush: b => App.sibuk(b, async () => { const r = await api('sistem.flush', {}); toast(r.hasil + ' pengumpulan dinilai.', 'ok'); App.render(); }),
       sinkron: b => App.sibuk(b, async () => { const r = await api('paket.sinkronResmi', {}); toast('Sinkron selesai: ' + JSON.stringify(r), 'ok', 6000); App.Data.basi('paket'); }),
-      bersihLokal: () => { App.Data.kosongkan(); toast('Tampilan tersimpan dikosongkan.', 'ok'); }
+      bersihLokal: () => { App.Data.kosongkan(); toast('Tampilan tersimpan dikosongkan.', 'ok'); },
+      ujiCepat: b => App.sibuk(b, async () => {
+        const uji = [['app.konfig', {}], ['app.konfig', {}], ['sistem.status', {}], ['kegiatan.daftar', {}], ['siswa.daftar', { arsip: false }], ['laporan.rekap', {}]], hasil = [];
+        for (const x of uji) { const t0 = performance.now(); try { await api(x[0], x[1], { tanpaUlang: true }); } catch (e) { /* dicatat */ } const p = (App.perf || []).slice(-1)[0] || {}; hasil.push({ a: x[0], total: Math.round(performance.now() - t0), server: p.a === x[0] ? p.server : null }); }
+        const rata = k => Math.round(hasil.reduce((s, x) => s + (x[k] || 0), 0) / hasil.length), jar = rata('total') - rata('server');
+        modal({ judul: 'Hasil uji kecepatan', lebar: true, isi: h`<div class="tabel-wadah"><table class="t"><thead><tr><th>Permintaan</th><th class="angka">Total (ms)</th><th class="angka">Kerja server (ms)</th><th class="angka">Jaringan + antre (ms)</th></tr></thead><tbody>
+          ${hasil.map(x => h`<tr><td>${x.a}</td><td class="angka">${x.total}</td><td class="angka">${x.server == null ? '–' : x.server}</td><td class="angka">${x.server == null ? '–' : x.total - x.server}</td></tr>`)}</tbody></table></div>
+          <p style="margin-top:12px">${rata('server') > 2500 ? h`<b>Server lambat</b> (rata-rata ${rata('server')} ms). Jalankan <code>cekPerforma</code> di editor Apps Script dan kirim hasilnya.` : jar > 2500 ? h`<b>Jaringan lambat</b> (rata-rata ${jar} ms di perjalanan). Server bekerja normal; coba jaringan lain.` : h`<b>Normal.</b> Kerja server rata-rata ${rata('server')} ms, perjalanan jaringan ${jar} ms.`}</p>
+          <p class="kecil">Permintaan pertama setelah lama tidak dipakai biasanya lebih lama (server Google "bangun"). Setelah itu menu terbuka dari simpanan di perangkat.</p>` });
+      })
     });
   };
 })();

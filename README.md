@@ -15,7 +15,7 @@ Folder ini adalah **akar repository GitHub Pages**: `index.html` harus berada di
 | `js/core.js` | API, penyimpanan, pembuka brankas, router, komponen. |
 | `js/lib/` | Perender soal dan KaTeX. |
 | `js/pages/` | Halaman siswa, ujian, pengawas, guru, bank soal, laporan, admin. |
-| `paket/` | 10 paket try out resmi KelasTKA+ dalam bentuk **terenkripsi** (AES-256-GCM). Kuncinya hanya ada di server dan diberikan saat sesi berjalan. |
+| `paket/` | 20 paket try out resmi KelasTKA+ (Try Out 1–10 Matematika dan Bahasa Indonesia) dalam bentuk **terenkripsi** (AES-256-GCM). Kuncinya hanya ada di server dan diberikan saat sesi berjalan. |
 | `assets/` | Logo dan ikon. |
 
 ## Yang tidak ada di sini

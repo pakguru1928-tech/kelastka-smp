@@ -9,6 +9,19 @@
   const LABEL = [['Benar', 'Salah'], ['Sesuai', 'Tidak sesuai'], ['Fakta', 'Opini'], ['Tepat', 'Tidak tepat']];
   const mapelSaya = () => (Sesi.me || {}).m || '';
   const lv = s => String(s || '').replace(/^\d+\s*/, '');
+  /** Pilihan subelemen & indikator dari kisi-kisi resmi (kerangka asesmen TKA SMP). */
+  const kisi = m => (window.KTKA_KISI || {})[m] || [];
+  const cariKisi = (m, kode) => kisi(m).find(x => x[2] === kode);
+  function pilihKisi(mapel, elemen, sub, kode) {
+    const K = kisi(mapel).filter(x => !elemen || x[0] === elemen), subs = Array.from(new Set(K.map(x => x[1])));
+    const inds = K.filter(x => x[1] === sub);
+    return h`<div class="fld"><label class="f">Subelemen / subkompetensi</label><select class="in" name="sub" ${elemen ? '' : 'disabled'}>
+        <option value="">${elemen ? '— pilih subelemen —' : 'pilih elemen dahulu'}</option>${sub && subs.indexOf(sub) < 0 ? h`<option selected>${sub}</option>` : ''}
+        ${subs.map(x => h`<option ${x === sub ? 'selected' : ''}>${x}</option>`)}</select></div>
+      <div class="fld"><label class="f">Indikator kisi-kisi (${inds.length})</label><select class="in" name="pilihInd" ${inds.length ? '' : 'disabled'}>
+        <option value="">${sub ? '— pilih indikator, atau tulis sendiri di bawah —' : 'pilih subelemen dahulu'}</option>
+        ${inds.map(x => h`<option value="${x[2]}" ${x[2] === kode ? 'selected' : ''}>${x[2]}${x[3] ? ' · ' + x[3] : ''} — ${x[4]}</option>`)}</select></div>`;
+  }
 
   // =========================================================== DAFTAR BANK
   App.hal['bank'] = async function (el) {
@@ -48,7 +61,7 @@
 
   // =========================================================== EDITOR & TELAAH
   App.hal['bank/:id'] = async function (el, prm) {
-    await App.modul('ujian');
+    await Promise.all([App.modul('ujian'), App.modul('kisi')]);
     el.innerHTML = String(App.kerangka(2));
     const baru = prm.id === 'baru';
     let B;
@@ -79,9 +92,9 @@
             <div class="fld"><label class="f">Elemen</label><select class="in" name="elemen"><option value="">— pilih —</option>${(ELEMEN[B.mapel] || []).map(e => h`<option ${B.elemen === e ? 'selected' : ''}>${e}</option>`)}</select></div>
             ${B.mapel === 'MAT' ? h`<div class="fld"><label class="f">Level kognitif</label><select class="in" name="level"><option value="">— pilih —</option>${LEVEL.map(l => h`<option value="${l}" ${B.level === l ? 'selected' : ''}>${lv(l)}</option>`)}</select></div>` : ''}
           </div>
-          <div class="grid2"><div class="fld"><label class="f">Subelemen / subkompetensi</label><input class="in" name="sub" value="${B.sub}"></div>
-            <div class="fld"><label class="f">Kode indikator (opsional)</label><input class="in" name="kode" value="${B.kode}" placeholder="mis. MAT.BIL.11"></div></div>
-          <div class="fld"><label class="f">Indikator</label><input class="in" name="indikator" value="${B.indikator}" placeholder="Siswa dapat …"></div>
+          ${pilihKisi(B.mapel, B.elemen, B.sub, B.kode)}
+          <div class="grid2"><div class="fld"><label class="f">Kode indikator</label><input class="in" name="kode" value="${B.kode}" placeholder="terisi otomatis dari kisi-kisi"></div>
+            <div class="fld"><label class="f">Indikator (boleh disesuaikan)</label><input class="in" name="indikator" value="${B.indikator}" placeholder="Siswa dapat …"></div></div>
           <label class="cek" style="margin:6px 0 12px"><input type="checkbox" id="pakai-stim" ${pakaiStim ? 'checked' : ''}><span>Pakai bacaan/stimulus</span></label>
           ${pakaiStim ? h`<div class="kartu" style="background:var(--muted);padding:14px;margin-bottom:12px"><div class="grid2"><div class="fld"><label class="f">Judul bacaan</label><input class="in" name="s_judul" value="${(K.stimulus || {}).judul || ''}"></div>
             <div class="fld"><label class="f">Sumber (wajib bila kutipan)</label><input class="in" name="s_sumber" value="${(K.stimulus || {}).sumber || ''}" placeholder="mis. Teks asli guru"></div></div>
@@ -108,7 +121,14 @@
       pratinjau(); cekTampil();
       const fm = $('#ed', el);
       fm.addEventListener('input', App.tunda(() => { baca(); pratinjau(); }, 250));
-      fm.addEventListener('change', e => { const n = e.target.name; baca(); if (n === 'bentuk' || n === 'mapel' || n === 'label') { if (n === 'bentuk') ubahBentuk(); gambar(); } else pratinjau(); });
+      fm.addEventListener('change', e => {
+        const n = e.target.name;
+        if (n === 'pilihInd') { const x = cariKisi(B.mapel, e.target.value); if (x) { baca(); B.kode = x[2]; B.indikator = x[4]; if (B.mapel === 'MAT' && x[5]) B.level = x[5]; if (!B.bentuk) B.bentuk = x[6]; } return gambar(); }
+        baca();
+        if (n === 'elemen') { B.sub = ''; return gambar(); }
+        if (n === 'sub') return gambar();
+        if (n === 'bentuk' || n === 'mapel' || n === 'label') { if (n === 'bentuk') ubahBentuk(); gambar(); } else pratinjau();
+      });
       fm.addEventListener('focusin', e => { if (e.target.dataset.fokus) fokus = e.target.dataset.fokus; });
       const ps = $('#pakai-stim', el); if (ps) ps.onchange = () => { baca(); pakaiStim = ps.checked; if (pakaiStim && !K.stimulus) K.stimulus = { judul: '', isi: '', sumber: '' }; gambar(); };
     };
@@ -299,27 +319,41 @@
     }
     // ---- AI
     async function ai() {
+      await App.modul('kisi');
       let s; try { s = await api('ai.status', {}); } catch (e) { s = { aktif: false }; }
-      el.innerHTML = String(h`${kepala()}<div class="kolom2"><form class="kartu aksen" id="f-ai" onsubmit="return false">
-        ${!s.aktif ? h`<div class="kartu" style="border-left:4px solid var(--warn);margin-bottom:12px">${ikon('info')} Kunci API Gemini belum diisi. Admin dapat mengisinya di <b>Pengaturan → Kunci API Gemini</b> (tingkat gratis cukup untuk guru).</div>` : h`<p class="kecil">Model: ${s.model}. Maksimal 5 butir per permintaan, 20 permintaan per jam per guru.</p>`}
-        <div class="grid3"><div class="fld"><label class="f">Bentuk</label><select class="in" name="bentuk">${Object.keys(KTKA.NAMA_BENTUK).map(b => h`<option value="${b}">${KTKA.NAMA_BENTUK[b]}</option>`)}</select></div>
-          <div class="fld"><label class="f">Jumlah</label><select class="in" name="jumlah">${[1, 2, 3, 4, 5].map(n => h`<option ${n === 3 ? 'selected' : ''}>${n}</option>`)}</select></div>
-          <div class="fld"><label class="f">Elemen</label><select class="in" name="elemen">${ELEMEN[st.mapel].map(e => h`<option>${e}</option>`)}</select></div></div>
-        ${st.mapel === 'MAT' ? h`<div class="fld"><label class="f">Level kognitif</label><select class="in" name="level">${LEVEL.map(l => h`<option value="${l}">${lv(l)}</option>`)}</select></div>` : ''}
-        <div class="fld"><label class="f">Subelemen / materi</label><input class="in" name="sub" placeholder="${st.mapel === 'MAT' ? 'mis. Perbandingan senilai' : 'mis. Teks eksplanasi'}"></div>
-        <div class="fld"><label class="f">Indikator</label><input class="in" name="indikator" placeholder="Siswa dapat …"></div>
-        <div class="fld"><label class="f">Konteks (opsional)</label><input class="in" name="konteks" placeholder="mis. kegiatan pasar tradisional di Sumatera Barat"></div>
+      const F = st.ai = st.ai && st.ai.mapel === st.mapel ? st.ai : { mapel: st.mapel, bentuk: 'PG', jumlah: '3', elemen: ELEMEN[st.mapel][0], level: LEVEL[1], sub: '', kode: '', indikator: '', konteks: '' };
+      const isi = () => {
+        el.innerHTML = String(h`${kepala()}<div class="kolom2"><form class="kartu aksen" id="f-ai" onsubmit="return false">
+        ${!s.aktif ? h`<div class="kartu" style="border-left:4px solid var(--warn);margin-bottom:12px">${ikon('info')} Kunci API Gemini belum diisi. Admin dapat mengisinya di <b>Pengaturan → Kunci API Gemini</b>.</div>` : h`<p class="kecil">Model: ${s.model}. Maksimal 5 butir per permintaan, 20 permintaan per jam per guru.</p>`}
+        <div class="grid3"><div class="fld"><label class="f">Bentuk</label><select class="in" name="bentuk">${Object.keys(KTKA.NAMA_BENTUK).map(b => h`<option value="${b}" ${F.bentuk === b ? 'selected' : ''}>${KTKA.NAMA_BENTUK[b]}</option>`)}</select></div>
+          <div class="fld"><label class="f">Jumlah</label><select class="in" name="jumlah">${['1', '2', '3', '4', '5'].map(n => h`<option ${F.jumlah === n ? 'selected' : ''}>${n}</option>`)}</select></div>
+          <div class="fld"><label class="f">Elemen</label><select class="in" name="elemen">${ELEMEN[st.mapel].map(e => h`<option ${F.elemen === e ? 'selected' : ''}>${e}</option>`)}</select></div></div>
+        ${st.mapel === 'MAT' ? h`<div class="fld"><label class="f">Level kognitif</label><select class="in" name="level">${LEVEL.map(l => h`<option value="${l}" ${F.level === l ? 'selected' : ''}>${lv(l)}</option>`)}</select></div>` : ''}
+        ${pilihKisi(st.mapel, F.elemen, F.sub, F.kode)}
+        <div class="fld"><label class="f">Indikator (boleh disesuaikan)</label><input class="in" name="indikator" value="${F.indikator}" placeholder="Siswa dapat …"></div>
+        <div class="fld"><label class="f">Konteks (opsional)</label><input class="in" name="konteks" value="${F.konteks}" placeholder="mis. kegiatan pasar tradisional di Sumatera Barat"></div>
         <button class="btn emas" data-aksi="aiBuat" ${s.aktif ? '' : 'disabled'}>${ikon('kilau')} Buat draf</button>
         <p class="kecil" style="margin-top:10px">Hasil AI dapat keliru (fakta, angka, kunci). Telaah dengan teliti sebelum disetujui. Jangan memasukkan data pribadi siswa.</p></form>
         <div class="kartu" id="ai-hasil"><h3>Hasil</h3><p class="kecil">Draf tersimpan otomatis di Bank Soal (status draf, asal AI).</p></div></div>`);
+        const f = $('#f-ai', el);
+        f.addEventListener('input', () => Object.assign(F, App.nilaiForm(f)));
+        f.addEventListener('change', e => {
+          const n = e.target.name; Object.assign(F, App.nilaiForm(f));
+          if (n === 'elemen') { F.sub = ''; F.kode = ''; isi(); }
+          else if (n === 'sub') { F.kode = ''; isi(); }
+          else if (n === 'pilihInd') { const x = cariKisi(st.mapel, e.target.value); if (x) { F.kode = x[2]; F.indikator = x[4]; if (st.mapel === 'MAT' && x[5]) F.level = x[5]; if (x[6]) F.bentuk = x[6]; } isi(); }
+        });
+      };
       App.aksi(el, Object.assign(aksiUmum(), {
         aiBuat: b => App.sibuk(b, async () => {
-          const f = App.nilaiForm($('#f-ai', el));
-          const r = await api('ai.buat', Object.assign({ mapel: st.mapel }, f, { jumlah: Number(f.jumlah) }), { batas: 120000 });
+          Object.assign(F, App.nilaiForm($('#f-ai', el)));
+          if (!F.sub || !F.indikator) throw new Error('Pilih subelemen dan isi indikator terlebih dahulu.');
+          const r = await api('ai.buat', { mapel: st.mapel, bentuk: F.bentuk, jumlah: Number(F.jumlah), elemen: F.elemen, level: st.mapel === 'MAT' ? F.level : '', sub: F.sub, kode: F.kode, indikator: F.indikator, konteks: F.konteks }, { batas: 120000 });
           App.Data.basi('bank');
           $('#ai-hasil', el).innerHTML = String(h`<h3>Hasil</h3><p>${r.ids.length} draf tersimpan:</p>${r.ids.map(id => h`<a class="log-item" href="#/bank/${encodeURIComponent(id)}">${ikon('dokumen')} ${id} — buka & telaah</a>`)}`);
         })
       }));
+      isi();
     }
     function aksiUmum() {
       return { tab: b => { tab = b.dataset.v; App.LS.set('tab_gen', tab); gambar(); }, mapel: b => { st.mapel = b.dataset.v; App.LS.set('gen_mapel', st.mapel); st.pilih = new Set(); gambar(); } };

@@ -22,6 +22,7 @@
           <div class="stat"><div><b>${d.hasil.length}</b>Try out diikuti</div><div><b>${rata == null ? '–' : angka(rata, 1)}</b>Rata-rata nilai</div>
             <div><b>${nanti.length}</b>Sesi terjadwal</div></div></div>
           <img src="./assets/logo-bulat.webp" alt="" width="150" height="150" style="border-radius:50%"></section>
+        <div id="slot-survei"></div>
         ${aktif.map(j => h`<div class="kartu sesi-aktif" style="margin-bottom:16px">
           <div class="kartu-kepala"><div><span class="pil kuning"><span class="titik denyut"></span> Sesi berlangsung</span>
             <h3 style="margin-top:8px">${j.nama}</h3><div class="kecil">${MAP[j.mapel]} · ${j.paket.nama} · ${j.durasi} menit${j.ruang ? ' · ' + j.ruang : ''}${j.jenis === 'susulan' ? ' · susulan' : ''}</div></div>
@@ -58,6 +59,13 @@
       const unik = {}; perlu.forEach(p => { unik[p.id] = p; });
       Paket.prefetch(Object.values(unik));
       for (const j of aktif) siapkan(j);
+      App.ambil('survei.saya', {}, sv => {
+        const slot = $('#slot-survei', el), buka = (sv || []).filter(x => !x.sudah); if (!slot) return;
+        slot.innerHTML = buka.length ? String(h`${buka.map(x => h`<div class="kartu" style="margin-bottom:16px;border-left:4px solid var(--blue);display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--blue-50);color:var(--blue);display:grid;place-items:center">${ikon('tanda')}</div>
+          <div style="flex:1;min-width:200px"><b>${x.judul}</b><div class="kecil">${x.butir} pertanyaan · ±${x.menit} menit · jawaban dirahasiakan${x.tutup ? ' · ditutup ' + App.tglJam(x.tutup) : ''}</div></div>
+          <a class="btn biru" href="#/isi-survei/${x.id}">Isi survei ${ikon('kanan')}</a></div>`)}`) : '';
+      }, { segar: 60000 }).catch(() => {});
     };
     const kartuPaket = (p, jadwal) => {
       const j = jadwal.find(x => x.paket.id === p.id && x.status !== 'selesai');

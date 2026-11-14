@@ -86,10 +86,18 @@
         const v = await modal({ judul: k.nama, isi: h`<div class="daftar-menu">
           ${k.status !== 'ditutup' ? h`<button class="item-menu" data-v="ubah">${ikon('edit')}<span>Ubah nama / mode penskoran</span></button>` : ''}
           <button class="item-menu" data-v="hitung">${ikon('segar')}<span>Hitung ulang nilai<br><small>Gunakan bila kunci butir diperbaiki.</small></span></button>
-          ${k.sesi.every(s => s.status === 'dijadwalkan') ? h`<button class="item-menu merah" data-v="hapus">${ikon('hapus')}<span>Hapus kegiatan</span></button>` : ''}</div>`,
+          ${k.sesi.every(s => s.status === 'dijadwalkan') ? h`<button class="item-menu merah" data-v="hapus">${ikon('hapus')}<span>Hapus kegiatan</span></button>`
+            : Sesi.peran === 'admin' ? h`<button class="item-menu merah" data-v="hapusTotal">${ikon('hapus')}<span><b>Hapus kegiatan beserta seluruh hasilnya</b><br><small>Khusus admin, untuk kegiatan uji coba atau salah jadwal. Spreadsheet dicadangkan otomatis dulu.</small></span></button>` : ''}</div>`,
           saatBuka: (m, tutup) => $$('[data-v]', m).forEach(x => x.onclick = () => tutup(x.dataset.v)) });
         if (v === 'ubah') formKegiatan(k).then(ok => ok && segarkan());
         if (v === 'hitung') api('hasil.hitungUlang', { kegiatan: k.id }).then(segarkan).catch(e => toast(e.message, 'err'));
+        if (v === 'hapusTotal') {
+          const r = await App.mintaTeks('Hapus "' + k.nama + '" beserta hasilnya', 'Ketik nama kegiatan persis untuk konfirmasi', { kelas: 'bahaya', tombol: 'Hapus permanen', min: 1,
+            pesan: 'Sesi, jawaban, nilai, pembahasan siswa, dan log kegiatan ini akan dihapus permanen. Salinan spreadsheet dibuat otomatis di folder cadangan sebelum dihapus.', placeholder: k.nama });
+          if (!r) return;
+          try { await api('kegiatan.hapusTotal', { id: k.id, konfirmasi: r.teks }, { batas: 120000 }); segarkan(); } catch (e) { toast(e.message, 'err'); }
+          return;
+        }
         if (v === 'hapus' && await App.konfirmasi('Hapus kegiatan?', 'Kegiatan dan sesinya dihapus.', 'Hapus', 'bahaya')) api('kegiatan.hapus', { id: k.id }).then(segarkan).catch(e => toast(e.message, 'err'));
       }
     });
