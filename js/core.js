@@ -1,7 +1,7 @@
 /* KelasTKA+ SMP — inti aplikasi: API, penyimpanan, brankas paket, router, komponen UI, Excel, grafik, cetak. */
 (function () {
   'use strict';
-  const VERSI = '1.4.0', API_V = 1;
+  const VERSI = '1.4.1', API_V = 1;
   const CFG = window.KTKA_CONFIG || {};
   const App = window.App = { VERSI, hal: {}, modulMuat: {} };
 

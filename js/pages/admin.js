@@ -143,7 +143,7 @@
     ['Pengamanan & sinkron', ['batas_pelanggaran', 'ambang_pindah_detik', 'simpan_otomatis_detik']],
     ['Latihan & AI', ['latihan_aktif', 'gemini_model']]
   ];
-  const LBL = { mode_skor: 'Aturan penskoran bawaan untuk kegiatan baru', latihan_aktif: 'Latihan mandiri siswa', gemini_model: 'Model Gemini untuk generator AI (hanya guru)' };
+  const LBL = { mode_skor: 'Aturan penskoran bawaan untuk kegiatan baru', latihan_aktif: 'Latihan mandiri siswa', gemini_model: 'Model Gemini untuk generator AI — isi "otomatis" agar dipilih sendiri dari kunci API' };
   App.hal['pengaturan'] = async function (el) {
     el.innerHTML = String(App.kerangka(3));
     const d = await api('set.ambil', {});
@@ -158,10 +158,25 @@
           <p class="kecil">Disimpan aman di server (Script Properties), tidak pernah dikirim ke peramban. Buat kunci gratis di Google AI Studio dengan akun sekolah.</p>
           <p>Status: ${G.ada ? h`<span class="pil hijau">Terpasang</span> <span class="mono">${G.samar}</span>` : h`<span class="pil">Belum diisi</span>`}</p>
           <div class="baris"><input class="in" id="gemini" type="text" name="kunci-api-gemini" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" style="-webkit-text-security:disc" placeholder="${G.ada ? 'Isi untuk mengganti' : 'Tempel kunci API'}" style="max-width:340px">
-            <button class="btn biru" data-aksi="kunciAi">Simpan kunci</button>${G.ada ? h`<button class="btn garis" data-aksi="hapusAi">Hapus</button>` : ''}</div></div></div></form>`);
+            <button class="btn biru" data-aksi="kunciAi">Simpan kunci</button>${G.ada ? h`<button class="btn garis" data-aksi="deteksiAi">${ikon('segar')} Periksa kunci & deteksi model</button><button class="btn garis" data-aksi="hapusAi">Hapus</button>` : ''}</div>
+          <div id="ai-hasil" style="margin-top:10px"></div></div></div></form>`);
+    const tampilAi = r => {
+      $('#ai-hasil', el).innerHTML = String(h`<p style="margin:0"><span class="pil hijau">${ikon('centang')} Kunci valid</span> Model dipakai: <b class="mono">${r.dipakai}</b>${r.dipakai === 'otomatis' ? h` (saat ini: <span class="mono">${r.disarankan}</span>)` : ''}</p>
+        <div class="baris" style="margin-top:8px"><select class="in" id="ai-pilih" style="max-width:340px">${r.tersedia.map((m, i) => h`<option value="${m}" ${m === r.dipakai ? 'selected' : ''}>${m}${i === 0 ? ' (disarankan)' : ''}</option>`)}</select>
+          <button class="btn garis" data-aksi="pakaiAi">Pakai model ini</button></div>
+        <p class="kecil" style="margin:6px 0 0">Daftar diambil langsung dari Google untuk kunci ini. Jika nama model suatu saat tidak berlaku, server mendeteksi ulang secara otomatis.</p>`);
+    };
+    const deteksi = async simpan => { const r = await api('ai.model', { simpan }); tampilAi(r); return r; };
     App.aksi(el, {
       simpan: b => App.sibuk(b, async () => { const f = App.nilaiForm($('#f-set', el)); delete f.gemini; await api('set.simpan', { setelan: f }); App.konfig = await api('app.konfig', {}); App.LS.set('konfig', App.konfig); }),
-      kunciAi: b => App.sibuk(b, async () => { const v = $('#gemini', el).value.trim(); if (!v) throw new Error('Kunci kosong.'); await api('rahasia.simpan', { kunci: 'GEMINI_API_KEY', nilai: v }); $('#gemini', el).value = ''; App.render(); }),
+      kunciAi: b => App.sibuk(b, async () => {
+        const v = $('#gemini', el).value.trim(); if (!v) throw new Error('Kunci kosong.');
+        await api('rahasia.simpan', { kunci: 'GEMINI_API_KEY', nilai: v }); $('#gemini', el).value = '';
+        try { const r = await deteksi(true); toast('Kunci valid. Model dipakai: ' + r.dipakai, 'ok'); } catch (e) { toast(e.message, 'err'); }
+        setTimeout(() => App.render(), 2500);
+      }),
+      deteksiAi: b => App.sibuk(b, () => deteksi(false)),
+      pakaiAi: b => App.sibuk(b, async () => { const r = await api('ai.model', { simpan: true, model: $('#ai-pilih', el).value }); tampilAi(r); toast('Model dipakai: ' + r.dipakai, 'ok'); }),
       hapusAi: async b => { if (await App.konfirmasi('Hapus kunci API?', 'Generator AI guru tidak dapat dipakai sampai kunci diisi lagi.', 'Hapus', 'bahaya')) App.sibuk(b, async () => { await api('rahasia.simpan', { kunci: 'GEMINI_API_KEY', nilai: '__HAPUS__' }); App.render(); }); }
     });
   };

@@ -11,7 +11,7 @@ Folder ini adalah **akar repository GitHub Pages**: `index.html` harus berada di
 | `index.html` | Kerangka aplikasi. |
 | `manifest.json` dan `sw.js` | Pemasangan di HP dan cache aplikasi. |
 | `css/app.css` | Tampilan. |
-| `js/config.js` | **Satu-satunya berkas yang perlu diubah**: isi `GAS_URL` dengan URL `/exec` Web App Apps Script. |
+| `js/config.js` | **Satu-satunya berkas yang perlu diubah**: isi `GAS_URL` dengan URL `/exec` Web App Apps Script. Pada paket berbagi, berkas ini disediakan terpisah agar pembaruan tidak menimpa alamat server sekolah. |
 | `js/core.js` | API, penyimpanan, pembuka brankas, router, komponen. |
 | `js/lib/` | Perender soal dan KaTeX. |
 | `js/pages/` | Halaman siswa, ujian, pengawas, guru, bank soal, laporan, admin. |
