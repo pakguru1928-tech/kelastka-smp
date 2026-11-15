@@ -1,7 +1,7 @@
 /* KelasTKA+ SMP — inti aplikasi: API, penyimpanan, brankas paket, router, komponen UI, Excel, grafik, cetak. */
 (function () {
   'use strict';
-  const VERSI = '1.4.1', API_V = 1;
+  const VERSI = '1.4.2', API_V = 1;
   const CFG = window.KTKA_CONFIG || {};
   const App = window.App = { VERSI, hal: {}, modulMuat: {} };
 
@@ -485,8 +485,12 @@
   let sudahPrefetch = '';
   function prefetchSekali() {
     const peran = Sesi.peran; if (!peran || sudahPrefetch === peran) return; sudahPrefetch = peran;
-    const modul = { siswa: ['ujian', 'rapor'], pengawas: [], guru: ['guru', 'pengawas', 'bank', 'laporan', 'rapor'], admin: ['guru', 'pengawas', 'bank', 'laporan', 'rapor', 'admin'] }[peran] || [];
-    const data = { siswa: [['siswa.hasil', {}]], pengawas: [], guru: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}]], admin: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['siswa.daftar', { arsip: false }]] }[peran] || [];
+    const modul = { siswa: ['ujian', 'rapor'], pengawas: ['survei'], guru: ['guru', 'pengawas', 'bank', 'laporan', 'rapor', 'survei', 'kisi'], admin: ['guru', 'pengawas', 'bank', 'laporan', 'rapor', 'admin', 'survei', 'kisi'] }[peran] || [];
+    // Data menu Survei dan Generator ikut disiapkan agar kunjungan pertama ke menu itu juga tidak menunggu server.
+    const mpl = (Sesi.me || {}).m || App.LS.get('gen_mapel', 'MAT'), rakit = ['bank.daftar', { asal: 'guru-semua', status: 'disetujui', mapel: mpl }];
+    const data = { siswa: [['siswa.hasil', {}]], pengawas: [['survei.saya', {}]],
+      guru: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['survei.saya', {}], ['survei.daftar', {}], ['ai.status', {}], rakit],
+      admin: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['siswa.daftar', { arsip: false }], ['survei.saya', {}], ['survei.daftar', {}], ['survei.bantuan', {}], ['ai.status', {}], rakit] }[peran] || [];
     (window.requestIdleCallback || (f => setTimeout(f, 1200)))(() => {
       modul.forEach(m => App.modul(m).catch(() => {}));
       data.forEach(x => App.ambil(x[0], x[1], null, { segar: 60000 }).catch(() => {}));

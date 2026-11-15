@@ -244,17 +244,20 @@
         <p>Rakit paket try out/latihan dari bank yang sudah disetujui, bangkitkan soal Matematika berparameter, atau minta AI menyusun draf. Semua soal baru berstatus <b>draf</b> dan wajib ditelaah.</p></div></div>
       <div class="seg" style="margin-bottom:16px">${[['rakit', 'Rakit paket'], ['param', 'Soal berparameter (MAT)'], ['ai', 'Draf dengan AI']].map(t => h`<button data-aksi="tab" data-v="${t[0]}" class="${tab === t[0] ? 'aktif' : ''}">${t[1]}</button>`)}</div>
       ${!mapelSaya() ? h`<div class="seg" style="margin:0 0 16px 8px">${['MAT', 'BIN'].map(m => h`<button data-aksi="mapel" data-v="${m}" class="${st.mapel === m ? 'aktif' : ''}">${MAP[m]}</button>`)}</div>` : ''}`;
+    let giliran = 0;
     const gambar = async () => {
+      giliran++;
       el.innerHTML = String(h`${kepala()}${App.kerangka(2)}`);
       if (tab === 'rakit') return rakit();
       if (tab === 'param') return param();
       return ai();
     };
     // ---- rakit paket dari butir disetujui
+    const qRakit = m => ({ asal: 'guru-semua', status: 'disetujui', mapel: m });
     async function rakit() {
-      const d = await App.ambil('bank.daftar', { asal: 'guru-semua', status: 'disetujui', mapel: st.mapel }, null, { segar: 15000, langsung: true });
-      const list = d.butir;
+      const g = giliran; let list = null;
       const isi = () => {
+        if (g !== giliran || !list) return;
         const dipilih = list.filter(b => st.pilih.has(b.id)), per = {};
         dipilih.forEach(b => { per[b.el] = (per[b.el] || 0) + 1; });
         el.innerHTML = String(h`${kepala()}<div class="kolom2"><div class="kartu"><div class="kartu-kepala"><h3>Butir disetujui (${list.length})</h3>
@@ -284,14 +287,18 @@
         buatPaket: b => App.sibuk(b, async () => {
           const nama = $('#pk-nama', el).value.trim(); if (!nama) throw new Error('Isi nama paket.');
           const r = await api('paket.buatGuru', { mapel: st.mapel, nama, jenis: $('#pk-jenis', el).value, durasi: Number($('#pk-durasi', el).value), butir: Array.from(st.pilih) });
-          await App.modul('guru'); await App.bekukanPaket({ id: r.id }); st.pilih = new Set(); App.ke('paket');
+          await App.modul('guru'); await App.bekukanPaket({ id: r.id }); st.pilih = new Set(); App.Data.basi('bank'); App.ke('paket');
         })
       }));
-      isi();
+      await App.ambil('bank.daftar', qRakit(st.mapel), d => { list = d.butir; isi(); }, { segar: 60000, langsung: true });
+      if (!mapelSaya()) setTimeout(() => App.ambil('bank.daftar', qRakit(st.mapel === 'MAT' ? 'BIN' : 'MAT'), null, { segar: 60000, langsung: true }).catch(() => {}), 1500);
     }
     // ---- soal berparameter
     async function param() {
+      const g = giliran;
+      if (st.mapel !== 'MAT') { el.innerHTML = String(h`${kepala()}${App.kosong('Khusus Matematika', 'Soal berparameter tersedia untuk Matematika. Untuk Bahasa Indonesia gunakan bank soal atau draf AI.')}`); App.aksi(el, aksiUmum()); return; }
       await App.modul('parametrik'); await App.modul('ujian');
+      if (g !== giliran) return;
       if (st.mapel !== 'MAT') { el.innerHTML = String(h`${kepala()}${App.kosong('Khusus Matematika', 'Soal berparameter tersedia untuk Matematika. Untuk Bahasa Indonesia gunakan bank soal atau draf AI.')}`); App.aksi(el, aksiUmum()); return; }
       let hasil = [];
       const isi = () => {
@@ -319,8 +326,9 @@
     }
     // ---- AI
     async function ai() {
-      await App.modul('kisi');
-      let s; try { s = await api('ai.status', {}); } catch (e) { s = { aktif: false }; }
+      const g = giliran;
+      let s; [s] = await Promise.all([App.ambil('ai.status', {}, null, { segar: 300000 }).catch(() => ({ aktif: false })), App.modul('kisi')]);
+      if (g !== giliran) return;
       const F = st.ai = st.ai && st.ai.mapel === st.mapel ? st.ai : { mapel: st.mapel, bentuk: 'PG', jumlah: '3', elemen: ELEMEN[st.mapel][0], level: LEVEL[1], sub: '', kode: '', indikator: '', konteks: '' };
       const isi = () => {
         el.innerHTML = String(h`${kepala()}<div class="kolom2"><form class="kartu aksen" id="f-ai" onsubmit="return false">

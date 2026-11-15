@@ -1,4 +1,4 @@
-# Panduan Lengkap KelasTKA+ SMP v1.4.1
+# Panduan Lengkap KelasTKA+ SMP v1.4.2
 
 Aplikasi latihan dan try out TKA SMP untuk Matematika dan Bahasa Indonesia, dilengkapi survei karakter dan lingkungan belajar. Satu pemasangan dipakai oleh **satu sekolah**.
 
@@ -61,13 +61,13 @@ Siswa membuka alamat GitHub Pages. Tampilan mengirim data ke server Apps Script,
 Setelah ZIP diekstrak, isinya seperti ini:
 
 ```
-KelasTKA-SMP-v1.4.1/
+KelasTKA-SMP-v1.4.2/
 ├── 00-BACA-DULU-Panduan-Lengkap.pdf      ← panduan ini
 ├── PANDUAN-LENGKAP.md                    ← panduan yang sama (teks)
 ├── 1-SERVER-AppsScript/                  ← 13 berkas: ditempel ke editor Apps Script
 ├── 2-RAHASIA-JANGAN-DIUNGGAH/            ← 98_DataPaketResmi.gs (kunci paket dan kunci jawaban)
 ├── 3-TAMPILAN-GitHubPages/
-│   ├── KelasTKA-SMP-tampilan-v1.4.1.zip  ← diekstrak menjadi folder repository GitHub
+│   ├── KelasTKA-SMP-tampilan-v1.4.2.zip  ← diekstrak menjadi folder repository GitHub
 │   └── config.js                         ← hanya untuk pemasangan baru
 └── 4-LAMPIRAN/                           ← kisi-kisi survei (Excel) dan contoh tampilan HP
 ```
@@ -170,7 +170,7 @@ Setup aman dijalankan ulang. Ia tidak menggandakan data, tidak mengganti rahasia
 1. Klik **Terapkan (Deploy)** → **Deployment baru**.
 2. Klik ikon roda gigi di samping "Pilih jenis", lalu pilih **Aplikasi web**.
 3. Isi pengaturannya:
-   - **Deskripsi**: `KelasTKA+ v1.4.1`
+   - **Deskripsi**: `KelasTKA+ v1.4.2`
    - **Jalankan sebagai**: **Saya** (akun sekolah)
    - **Siapa yang memiliki akses**: **Siapa saja**
 4. Klik **Terapkan**, lalu salin **URL aplikasi web** yang berakhiran **`/exec`**. Simpan URL ini; dipakai di Tahap 2.
@@ -184,7 +184,7 @@ Tahap ini memakai terminal (PowerShell di Windows, Terminal di Mac). **Jangan me
 
 ### Menyiapkan folder
 
-1. Ekstrak `3-TAMPILAN-GitHubPages/KelasTKA-SMP-tampilan-v1.4.1.zip` ke tempat yang mudah ditemukan, misalnya `Dokumen\kelastka-smp`.
+1. Ekstrak `3-TAMPILAN-GitHubPages/KelasTKA-SMP-tampilan-v1.4.2.zip` ke tempat yang mudah ditemukan, misalnya `Dokumen\kelastka-smp`.
    **Folder hasil ekstrak inilah folder kerja Anda.** Di dalamnya harus langsung terlihat `index.html`, `manifest.json`, `sw.js`, serta folder `css`, `js`, `assets`, dan `paket`.
 2. Salin `3-TAMPILAN-GitHubPages/config.js` ke folder `js` di dalam folder kerja.
 3. Buka `js\config.js` dengan Notepad. Ganti `GANTI_DENGAN_ID_DEPLOYMENT` sehingga `GAS_URL` berisi URL `/exec` dari Tahap 1, lalu simpan.
@@ -205,7 +205,7 @@ Tahap ini memakai terminal (PowerShell di Windows, Terminal di Mac). **Jangan me
    ```bash
    git init
    git add .
-   git commit -m "KelasTKA+ SMP v1.4.1"
+   git commit -m "KelasTKA+ SMP v1.4.2"
    git branch -M main
    git remote add origin https://github.com/USERNAME/kelastka-smp.git
    git push -u origin main
@@ -246,7 +246,7 @@ Tahap ini memakai terminal (PowerShell di Windows, Terminal di Mac). **Jangan me
 6. Klik **Cetak kartu login** per rombel. Satu lembar A4 memuat 10 kartu.
    - Jika kartu hilang, cetak ulang saja; tokennya tetap sama.
    - Jika token bocor, pilih siswa itu, klik **Ganti token**, lalu cetak kartu baru.
-7. Buka **Sistem & Cadangan** dan pastikan **Pekerja latar: Aktif** dan versi aplikasi serta versi server sama-sama **1.4.1**.
+7. Buka **Sistem & Cadangan** dan pastikan **Pekerja latar: Aktif** dan versi aplikasi serta versi server sama-sama **1.4.2**.
 8. (Opsional) Isi **Kunci API Gemini** di Pengaturan agar guru dapat memakai generator soal AI.
    - Buat kunci di <https://aistudio.google.com> dengan **akun Gmail sekolah**: **Get API key → Create API key**, lalu salin kunci yang diawali `AIza`.
    - Tempel di **Pengaturan → Kunci API Gemini**, lalu klik **Simpan kunci**. Server langsung memeriksa kunci itu ke Google dan **mendeteksi model yang tersedia**, lalu menampilkan *Kunci valid* beserta nama model yang dipakai. Nama model tidak perlu ditebak.
@@ -315,7 +315,7 @@ Survei murid tersedia dalam **5 paket lengkap**: setiap paket memuat semua indik
 | Survei Lingkungan Belajar — Murid | Murid | 96 pertanyaan, ±25 menit: iklim keamanan, kualitas pembelajaran, kompetensi pendidik, kebinekaan, inklusivitas, kesetaraan gender, kesiapsiagaan bencana dan perubahan iklim, partisipasi, program dan kebijakan sekolah, latar belakang belajar di rumah (tidak dinilai), dan 1 butir pemeriksa ketelitian |
 | Survei Lingkungan Belajar — Guru | Guru/staf | 21 butir: refleksi pembelajaran, kepemimpinan pembelajaran, iklim sekolah, praktik kelas, kesejahteraan guru |
 
-Acuan penyusunan: Kepmendikdasmen No. 56 Tahun 2026, definisi indikator Rapor Pendidikan 2026, dan contoh survei dari buku persiapan. Rincian butir dan bobotnya ada di `4-LAMPIRAN/KelasTKA-SMP-KisiKisi-Survei-Murid-v1.4.1.xlsx`. **Berkas ini khusus untuk guru; jangan dibagikan kepada murid.**
+Acuan penyusunan: Kepmendikdasmen No. 56 Tahun 2026, definisi indikator Rapor Pendidikan 2026, dan contoh survei dari buku persiapan. Rincian butir dan bobotnya ada di `4-LAMPIRAN/KelasTKA-SMP-KisiKisi-Survei-Murid-v1.4.2.xlsx`. **Berkas ini khusus untuk guru; jangan dibagikan kepada murid.**
 
 ### Tampilan murid
 
@@ -420,13 +420,13 @@ Ikuti bagian ini bila sekolah sudah memasang KelasTKA+ versi 1.0.0 sampai 1.3.0.
 
 ### Langkah 2 — Tampilan
 
-1. Ekstrak `KelasTKA-SMP-tampilan-v1.4.1.zip` **ke folder repository yang sudah ada**, yaitu folder yang berisi `index.html` dan pernah Anda *push* ke GitHub. Jika ditanya, pilih **timpa/replace semua**.
+1. Ekstrak `KelasTKA-SMP-tampilan-v1.4.2.zip` **ke folder repository yang sudah ada**, yaitu folder yang berisi `index.html` dan pernah Anda *push* ke GitHub. Jika ditanya, pilih **timpa/replace semua**.
 2. **Jangan** menyalin `config.js` dari paket ini. ZIP tampilan sengaja tidak memuat `js/config.js`, sehingga alamat server Anda tetap aman.
 3. Buka PowerShell di folder itu, lalu jalankan:
 
    ```bash
    git add .
-   git commit -m "Pembaruan ke KelasTKA+ v1.4.1"
+   git commit -m "Pembaruan ke KelasTKA+ v1.4.2"
    git push
    ```
 
@@ -435,7 +435,7 @@ Ikuti bagian ini bila sekolah sudah memasang KelasTKA+ versi 1.0.0 sampai 1.3.0.
 ### Langkah 3 — Periksa
 
 1. Tunggu 1–2 menit, buka aplikasi, lalu tekan **Ctrl+Shift+R** di komputer. Di HP, tutup lalu buka kembali aplikasinya; aplikasi menampilkan pemberitahuan "Versi baru siap".
-2. Masuk sebagai admin dan buka **Sistem**. Versi aplikasi dan versi server harus sama-sama **1.4.1**.
+2. Masuk sebagai admin dan buka **Sistem**. Versi aplikasi dan versi server harus sama-sama **1.4.2**.
 3. Jika sekolah pernah membuka **survei murid** dengan versi lama, hapus survei itu di menu **Survei**. Kode pertanyaannya sudah berubah, sehingga laporan baru tidak bisa membacanya dengan benar. Survei guru tidak terpengaruh.
 
 ### Pembaruan berikutnya

@@ -55,11 +55,9 @@
   App.hal['survei'] = async function (el) {
     el.innerHTML = String(App.kerangka(3));
     const admin = Sesi.peran === 'admin', boleh = admin || Sesi.peran === 'guru';
-    const [saya, D, bantuan] = await Promise.all([
-      App.apiQ('survei.saya', {}).catch(() => []),
-      boleh ? App.apiQ('survei.daftar', {}) : Promise.resolve(null),
-      admin ? App.apiQ('survei.bantuan', {}).catch(() => []) : Promise.resolve([])
-    ]);
+    // Tampil seketika dari data tersimpan di perangkat, lalu diperbarui di latar (tidak menunggu server setiap kali menu dibuka).
+    let saya = [], D = null, bantuan = [];
+    const ada = { s: false, d: !boleh, b: !admin }, coba = () => { if (ada.s && ada.d && ada.b) gambar(); };
     const gambar = () => {
       el.innerHTML = String(h`<div class="judul-hal"><div><div class="eyebrow">Survei</div><h1>Survei karakter & lingkungan belajar</h1>
           <p>Latihan survei dan refleksi mutu sekolah, selaras dengan indikator Rapor Pendidikan. Jawaban perorangan dirahasiakan; laporan hanya berupa rangkuman.</p></div>
@@ -87,19 +85,24 @@
               ${b.pesan ? h`<div class="kecil" style="margin-top:2px">"${b.pesan}"</div>` : ''}<div class="kecil">${b.survei}${b.oleh ? ' · ditangani ' + b.oleh : ''}</div></div>
               ${b.status === 'baru' ? h`<button class="btn kecil garis" data-aksi="tangani" data-b="${b.baris}">Tandai ditangani</button>` : App.pil('selesai', 'Ditangani')}</div>`) : h`<p class="kecil">Belum ada permintaan.</p>`}</div>` : ''}</div>` : ''}`);
     };
-    gambar();
+    const ulang = () => { App.Data.basi('survei'); App.render(); };
     App.aksi(el, {
-      baru: () => formSurvei(null, D).then(ok => ok && App.render()),
-      ubah: b => formSurvei(D.survei.find(s => s.id === b.dataset.id), D).then(ok => ok && App.render()),
+      baru: () => formSurvei(null, D).then(ok => ok && ulang()),
+      ubah: b => formSurvei(D.survei.find(s => s.id === b.dataset.id), D).then(ok => ok && ulang()),
       hapus: async b => {
         const s = D.survei.find(x => x.id === b.dataset.id);
         const r = await App.mintaTeks('Hapus survei "' + s.judul + '"', 'Ketik judul survei persis untuk konfirmasi', { kelas: 'bahaya', tombol: 'Hapus permanen', min: 1, placeholder: s.judul,
           pesan: 'Survei beserta ' + s.responden + ' jawaban dan permintaan bantuannya akan dihapus permanen.' });
         if (!r) return;
-        try { await api('survei.hapus', { id: s.id, konfirmasi: r.teks }); App.render(); } catch (e) { toast(e.message, 'err'); }
+        try { await api('survei.hapus', { id: s.id, konfirmasi: r.teks }); ulang(); } catch (e) { toast(e.message, 'err'); }
       },
-      tangani: b => App.sibuk(b, async () => { await api('survei.bantuanTindak', { baris: Number(b.dataset.b) }); App.render(); })
+      tangani: b => App.sibuk(b, async () => { await api('survei.bantuanTindak', { baris: Number(b.dataset.b) }); ulang(); })
     });
+    await Promise.all([
+      App.ambil('survei.saya', {}, v => { saya = v; ada.s = true; coba(); }, { segar: 15000 }).catch(() => { ada.s = true; coba(); }),
+      boleh ? App.ambil('survei.daftar', {}, v => { D = v; ada.d = true; coba(); }, { segar: 15000 }) : null,
+      admin ? App.ambil('survei.bantuan', {}, v => { bantuan = v; ada.b = true; coba(); }, { segar: 15000 }).catch(() => { ada.b = true; coba(); }) : null
+    ]);
   };
 
   async function formSurvei(s, D) {
@@ -313,7 +316,9 @@
     el.innerHTML = String(App.kerangka(3));
     let rb = '', semua = false, L, I;
     const muat = async segar => {
-      L = await api('survei.laporan', { id: prm.id, rombel: rb, semua, _fresh: !!segar });
+      const q = { id: prm.id, rombel: rb, semua };
+      if (segar) { L = await api('survei.laporan', Object.assign({ _fresh: true }, q)); App.Data.tulis('survei.laporan', q, L); }
+      else L = await App.ambil('survei.laporan', q, null, { segar: 60000 });
       I = I || await App.ambil('survei.instrumen', { jenis: L.survei.jenis }, null, { segar: 3600000 });
     };
     try { await muat(); } catch (e) { el.innerHTML = String(App.galatBox(e)); return; }
