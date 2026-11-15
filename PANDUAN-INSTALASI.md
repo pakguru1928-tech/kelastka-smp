@@ -1,4 +1,4 @@
-# Panduan Lengkap KelasTKA+ SMP v1.4.2
+# Panduan Lengkap KelasTKA+ SMP v1.4.3
 
 Aplikasi latihan dan try out TKA SMP untuk Matematika dan Bahasa Indonesia, dilengkapi survei karakter dan lingkungan belajar. Satu pemasangan dipakai oleh **satu sekolah**.
 
@@ -61,13 +61,13 @@ Siswa membuka alamat GitHub Pages. Tampilan mengirim data ke server Apps Script,
 Setelah ZIP diekstrak, isinya seperti ini:
 
 ```
-KelasTKA-SMP-v1.4.2/
+KelasTKA-SMP-v1.4.3/
 ├── 00-BACA-DULU-Panduan-Lengkap.pdf      ← panduan ini
 ├── PANDUAN-LENGKAP.md                    ← panduan yang sama (teks)
 ├── 1-SERVER-AppsScript/                  ← 13 berkas: ditempel ke editor Apps Script
 ├── 2-RAHASIA-JANGAN-DIUNGGAH/            ← 98_DataPaketResmi.gs (kunci paket dan kunci jawaban)
 ├── 3-TAMPILAN-GitHubPages/
-│   ├── KelasTKA-SMP-tampilan-v1.4.2.zip  ← diekstrak menjadi folder repository GitHub
+│   ├── KelasTKA-SMP-tampilan-v1.4.3.zip  ← diekstrak menjadi folder repository GitHub
 │   └── config.js                         ← hanya untuk pemasangan baru
 └── 4-LAMPIRAN/                           ← kisi-kisi survei (Excel) dan contoh tampilan HP
 ```
@@ -170,7 +170,7 @@ Setup aman dijalankan ulang. Ia tidak menggandakan data, tidak mengganti rahasia
 1. Klik **Terapkan (Deploy)** → **Deployment baru**.
 2. Klik ikon roda gigi di samping "Pilih jenis", lalu pilih **Aplikasi web**.
 3. Isi pengaturannya:
-   - **Deskripsi**: `KelasTKA+ v1.4.2`
+   - **Deskripsi**: `KelasTKA+ v1.4.3`
    - **Jalankan sebagai**: **Saya** (akun sekolah)
    - **Siapa yang memiliki akses**: **Siapa saja**
 4. Klik **Terapkan**, lalu salin **URL aplikasi web** yang berakhiran **`/exec`**. Simpan URL ini; dipakai di Tahap 2.
@@ -184,7 +184,7 @@ Tahap ini memakai terminal (PowerShell di Windows, Terminal di Mac). **Jangan me
 
 ### Menyiapkan folder
 
-1. Ekstrak `3-TAMPILAN-GitHubPages/KelasTKA-SMP-tampilan-v1.4.2.zip` ke tempat yang mudah ditemukan, misalnya `Dokumen\kelastka-smp`.
+1. Ekstrak `3-TAMPILAN-GitHubPages/KelasTKA-SMP-tampilan-v1.4.3.zip` ke tempat yang mudah ditemukan, misalnya `Dokumen\kelastka-smp`.
    **Folder hasil ekstrak inilah folder kerja Anda.** Di dalamnya harus langsung terlihat `index.html`, `manifest.json`, `sw.js`, serta folder `css`, `js`, `assets`, dan `paket`.
 2. Salin `3-TAMPILAN-GitHubPages/config.js` ke folder `js` di dalam folder kerja.
 3. Buka `js\config.js` dengan Notepad. Ganti `GANTI_DENGAN_ID_DEPLOYMENT` sehingga `GAS_URL` berisi URL `/exec` dari Tahap 1, lalu simpan.
@@ -205,7 +205,7 @@ Tahap ini memakai terminal (PowerShell di Windows, Terminal di Mac). **Jangan me
    ```bash
    git init
    git add .
-   git commit -m "KelasTKA+ SMP v1.4.2"
+   git commit -m "KelasTKA+ SMP v1.4.3"
    git branch -M main
    git remote add origin https://github.com/USERNAME/kelastka-smp.git
    git push -u origin main
@@ -246,7 +246,7 @@ Tahap ini memakai terminal (PowerShell di Windows, Terminal di Mac). **Jangan me
 6. Klik **Cetak kartu login** per rombel. Satu lembar A4 memuat 10 kartu.
    - Jika kartu hilang, cetak ulang saja; tokennya tetap sama.
    - Jika token bocor, pilih siswa itu, klik **Ganti token**, lalu cetak kartu baru.
-7. Buka **Sistem & Cadangan** dan pastikan **Pekerja latar: Aktif** dan versi aplikasi serta versi server sama-sama **1.4.2**.
+7. Buka **Sistem & Cadangan** dan pastikan **Pekerja latar: Aktif** dan versi aplikasi serta versi server sama-sama **1.4.3**.
 8. (Opsional) Isi **Kunci API Gemini** di Pengaturan agar guru dapat memakai generator soal AI.
    - Buat kunci di <https://aistudio.google.com> dengan **akun Gmail sekolah**: **Get API key → Create API key**, lalu salin kunci yang diawali `AIza`.
    - Tempel di **Pengaturan → Kunci API Gemini**, lalu klik **Simpan kunci**. Server langsung memeriksa kunci itu ke Google dan **mendeteksi model yang tersedia**, lalu menampilkan *Kunci valid* beserta nama model yang dipakai. Nama model tidak perlu ditebak.
@@ -315,7 +315,7 @@ Survei murid tersedia dalam **5 paket lengkap**: setiap paket memuat semua indik
 | Survei Lingkungan Belajar — Murid | Murid | 96 pertanyaan, ±25 menit: iklim keamanan, kualitas pembelajaran, kompetensi pendidik, kebinekaan, inklusivitas, kesetaraan gender, kesiapsiagaan bencana dan perubahan iklim, partisipasi, program dan kebijakan sekolah, latar belakang belajar di rumah (tidak dinilai), dan 1 butir pemeriksa ketelitian |
 | Survei Lingkungan Belajar — Guru | Guru/staf | 21 butir: refleksi pembelajaran, kepemimpinan pembelajaran, iklim sekolah, praktik kelas, kesejahteraan guru |
 
-Acuan penyusunan: Kepmendikdasmen No. 56 Tahun 2026, definisi indikator Rapor Pendidikan 2026, dan contoh survei dari buku persiapan. Rincian butir dan bobotnya ada di `4-LAMPIRAN/KelasTKA-SMP-KisiKisi-Survei-Murid-v1.4.2.xlsx`. **Berkas ini khusus untuk guru; jangan dibagikan kepada murid.**
+Acuan penyusunan: Kepmendikdasmen No. 56 Tahun 2026, definisi indikator Rapor Pendidikan 2026, dan contoh survei dari buku persiapan. Rincian butir dan bobotnya ada di `4-LAMPIRAN/KelasTKA-SMP-KisiKisi-Survei-Murid-v1.4.3.xlsx`. **Berkas ini khusus untuk guru; jangan dibagikan kepada murid.**
 
 ### Tampilan murid
 
@@ -370,6 +370,13 @@ Catat setiap kendala beserta tangkapan layar dan isi menu **Sistem → Jejak aud
 - Simpan otomatis tidak langsung menulis ke spreadsheet. Data ditahan di *cache* server, lalu ditulis bertahap oleh `jobTiapMenit`.
 - Paket soal diunduh sekali ke perangkat dalam bentuk terenkripsi, lalu dibuka saat siswa memasukkan token sesi.
 - Pembahasan baru bisa dibuka setelah kegiatan ditutup.
+- Saat siswa mulai mengerjakan, server hanya membaca kolom identitas di sheet `KUMPUL`, bukan seluruh isian jawaban. Siswa tetap cepat masuk ujian walaupun data pengumpulan sudah ribuan baris.
+
+### Menu staf tampil seketika
+
+- Menu staf, seperti Pengaturan, Survei, Generator, dan Bank Soal, langsung tampil dari data yang tersimpan di perangkat, lalu diperbarui diam-diam di latar. Data menu utama disiapkan saat perangkat senggang setelah login.
+- Saat menyimpan **Pengaturan**, hanya kolom yang Anda ubah yang dikirim. Isian yang sedang diketik tidak ditimpa oleh data dari server.
+- Menu **Sistem** sengaja tidak disiapkan saat login karena pekerjaannya berat di server. Kunjungan pertama menunggu server; kunjungan berikutnya langsung tampil. Tekan **Segarkan** untuk mengambil angka terbaru. Status **Pekerja latar** selalu diperiksa langsung, tidak pernah diambil dari simpanan.
 
 ### Kuota
 
@@ -391,13 +398,13 @@ Jalankan dari editor Apps Script bila diperlukan:
 
 ### Cadangan
 
-Salinan spreadsheet dibuat otomatis setiap hari; 14 salinan terakhir disimpan di folder `cadangan`. Admin juga dapat membuat cadangan manual dari menu **Sistem**.
+Salinan spreadsheet dibuat otomatis setiap hari; 14 salinan terakhir disimpan di folder `cadangan`. Admin juga dapat membuat cadangan manual dari menu **Sistem**. Daftar cadangan di menu itu disimpan sementara di server selama 30 menit dan langsung diperbarui setiap kali cadangan baru dibuat. Bila Anda menambah atau menghapus berkas cadangan langsung di Drive, tekan **Segarkan**.
 
 ---
 
 ## 14. Memperbarui dari versi lama
 
-Ikuti bagian ini bila sekolah sudah memasang KelasTKA+ versi 1.0.0 sampai 1.3.0. **Data siswa, akun staf, kegiatan, nilai, dan pengaturan tetap aman.** Setup hanya menambah yang belum ada.
+Ikuti bagian ini bila sekolah sudah memasang KelasTKA+ versi 1.0.0 sampai 1.4.2. **Data siswa, akun staf, kegiatan, nilai, dan pengaturan tetap aman.** Setup hanya menambah yang belum ada.
 
 > **Jangan memperbarui saat try out sedang berlangsung.** Selesaikan dulu semua sesi yang berjalan.
 
@@ -420,13 +427,13 @@ Ikuti bagian ini bila sekolah sudah memasang KelasTKA+ versi 1.0.0 sampai 1.3.0.
 
 ### Langkah 2 — Tampilan
 
-1. Ekstrak `KelasTKA-SMP-tampilan-v1.4.2.zip` **ke folder repository yang sudah ada**, yaitu folder yang berisi `index.html` dan pernah Anda *push* ke GitHub. Jika ditanya, pilih **timpa/replace semua**.
+1. Ekstrak `KelasTKA-SMP-tampilan-v1.4.3.zip` **ke folder repository yang sudah ada**, yaitu folder yang berisi `index.html` dan pernah Anda *push* ke GitHub. Jika ditanya, pilih **timpa/replace semua**.
 2. **Jangan** menyalin `config.js` dari paket ini. ZIP tampilan sengaja tidak memuat `js/config.js`, sehingga alamat server Anda tetap aman.
 3. Buka PowerShell di folder itu, lalu jalankan:
 
    ```bash
    git add .
-   git commit -m "Pembaruan ke KelasTKA+ v1.4.2"
+   git commit -m "Pembaruan ke KelasTKA+ v1.4.3"
    git push
    ```
 
@@ -435,7 +442,7 @@ Ikuti bagian ini bila sekolah sudah memasang KelasTKA+ versi 1.0.0 sampai 1.3.0.
 ### Langkah 3 — Periksa
 
 1. Tunggu 1–2 menit, buka aplikasi, lalu tekan **Ctrl+Shift+R** di komputer. Di HP, tutup lalu buka kembali aplikasinya; aplikasi menampilkan pemberitahuan "Versi baru siap".
-2. Masuk sebagai admin dan buka **Sistem**. Versi aplikasi dan versi server harus sama-sama **1.4.2**.
+2. Masuk sebagai admin dan buka **Sistem**. Versi aplikasi dan versi server harus sama-sama **1.4.3**.
 3. Jika sekolah pernah membuka **survei murid** dengan versi lama, hapus survei itu di menu **Survei**. Kode pertanyaannya sudah berubah, sehingga laporan baru tidak bisa membacanya dengan benar. Survei guru tidak terpengaruh.
 
 ### Pembaruan berikutnya
@@ -458,6 +465,7 @@ Untuk versi-versi selanjutnya, langkahnya sama: tempel kode baru ke berkas yang 
 | Login siswa: "Username atau token salah" | Periksa kartu. Huruf O dan angka 0 tidak dipakai di token. Setelah 5 kali salah, akun terkunci 15 menit; pengawas dapat membukanya dari menu pantau. |
 | "Akun dipakai di perangkat lain" | Pengawas memilih siswa → **Reset login**. Siswa lalu masuk di perangkat baru dengan token sesi. |
 | Paket gagal dibuka | Peramban terlalu lama, situs dibuka tanpa https, atau tampilan dan server berbeda versi. Gunakan Chrome/Safari terbaru melalui alamat https dan samakan versinya. |
+| Angka atau daftar cadangan di menu Sistem belum berubah | Tekan **Segarkan** di menu Sistem untuk mengambil data terbaru dari server. |
 | Nilai belum muncul | Tunggu 1–2 menit atau buka **Kegiatan → Proses jawaban**. Pembahasan untuk siswa terbuka setelah kegiatan ditutup. |
 | Gambar soal guru tidak tampil | Gambar disimpan di Drive akun sekolah dengan akses "siapa saja yang memiliki link". Akun Workspace yang membatasi berbagi tautan dapat menghalanginya; gunakan akun Gmail (Tahap 0). |
 | Laporan survei kosong atau aneh setelah pembaruan | Survei dibuka dengan versi lama. Hapus survei itu, lalu buka survei baru. |

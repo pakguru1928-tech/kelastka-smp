@@ -1,7 +1,7 @@
 /* KelasTKA+ SMP — inti aplikasi: API, penyimpanan, brankas paket, router, komponen UI, Excel, grafik, cetak. */
 (function () {
   'use strict';
-  const VERSI = '1.4.2', API_V = 1;
+  const VERSI = '1.4.3', API_V = 1;
   const CFG = window.KTKA_CONFIG || {};
   const App = window.App = { VERSI, hal: {}, modulMuat: {} };
 
@@ -487,10 +487,15 @@
     const peran = Sesi.peran; if (!peran || sudahPrefetch === peran) return; sudahPrefetch = peran;
     const modul = { siswa: ['ujian', 'rapor'], pengawas: ['survei'], guru: ['guru', 'pengawas', 'bank', 'laporan', 'rapor', 'survei', 'kisi'], admin: ['guru', 'pengawas', 'bank', 'laporan', 'rapor', 'admin', 'survei', 'kisi'] }[peran] || [];
     // Data menu Survei dan Generator ikut disiapkan agar kunjungan pertama ke menu itu juga tidak menunggu server.
-    const mpl = (Sesi.me || {}).m || App.LS.get('gen_mapel', 'MAT'), rakit = ['bank.daftar', { asal: 'guru-semua', status: 'disetujui', mapel: mpl }];
+    const me = Sesi.me || {}, mpl = me.m || App.LS.get('gen_mapel', 'MAT'), rakit = ['bank.daftar', { asal: 'guru-semua', status: 'disetujui', mapel: mpl }];
+    // kunci harus sama persis dengan yang dipakai halaman Bank Soal (urutan properti ikut menentukan)
+    const sb = App.LS.get('saring_bank', {}), fb = { asal: 'guru-semua', status: '', bentuk: '', elemen: '', q: '', mapel: me.m || 'MAT' };
+    Object.keys(fb).forEach(k => { if (sb[k] !== undefined) fb[k] = sb[k]; }); if (me.m) fb.mapel = me.m;
+    const bankHal = ['bank.daftar', fb];
     const data = { siswa: [['siswa.hasil', {}]], pengawas: [['survei.saya', {}]],
-      guru: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['survei.saya', {}], ['survei.daftar', {}], ['ai.status', {}], rakit],
-      admin: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['siswa.daftar', { arsip: false }], ['survei.saya', {}], ['survei.daftar', {}], ['survei.bantuan', {}], ['ai.status', {}], rakit] }[peran] || [];
+      guru: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['survei.saya', {}], ['survei.daftar', {}], ['ai.status', {}], rakit, bankHal],
+      // menu Sistem sengaja tidak disiapkan: pekerjaannya berat di server dan jarang dibuka
+      admin: [['kegiatan.daftar', {}], ['paket.daftar', {}], ['pengawas.sesi', {}], ['siswa.daftar', { arsip: false }], ['survei.saya', {}], ['survei.daftar', {}], ['survei.bantuan', {}], ['ai.status', {}], rakit, bankHal, ['set.ambil', {}], ['guru.daftar', {}]] }[peran] || [];
     (window.requestIdleCallback || (f => setTimeout(f, 1200)))(() => {
       modul.forEach(m => App.modul(m).catch(() => {}));
       data.forEach(x => App.ambil(x[0], x[1], null, { segar: 60000 }).catch(() => {}));
@@ -538,7 +543,9 @@
       Pasang.tombol();
     }
     $$('[data-nav]', app).forEach(a => a.classList.toggle('aktif', a.dataset.nav === aktifNav));
-    const m = $('#utama'); m.innerHTML = String(kerangka(3)); return m;
+    // Wadah baru untuk setiap halaman: data yang datang terlambat dari halaman sebelumnya jatuh ke wadah lama
+    // yang sudah dilepas, sehingga tidak pernah menimpa halaman yang sedang dibuka.
+    const lama = $('#utama'), m = lama.cloneNode(false); m.innerHTML = String(kerangka(3)); lama.replaceWith(m); return m;
   }
   function menuLainnya() {
     const nav = NAV[Sesi.peran] || [];

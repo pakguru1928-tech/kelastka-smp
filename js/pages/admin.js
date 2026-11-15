@@ -146,9 +146,20 @@
   const LBL = { mode_skor: 'Aturan penskoran bawaan untuk kegiatan baru', latihan_aktif: 'Latihan mandiri siswa', gemini_model: 'Model Gemini untuk generator AI — isi "otomatis" agar dipilih sendiri dari kunci API' };
   App.hal['pengaturan'] = async function (el) {
     el.innerHTML = String(App.kerangka(3));
-    const d = await api('set.ambil', {});
-    const S = d.setelan, G = d.rahasia.GEMINI_API_KEY;
-    el.innerHTML = String(h`<div class="judul-hal"><div><div class="eyebrow">Administrasi</div><h1>Pengaturan</h1><p>Perubahan berlaku untuk seluruh pengguna dalam beberapa detik.</p></div>
+    // Tampil seketika dari data tersimpan di perangkat, lalu diperbarui di latar.
+    // Pengaman: (1) isian yang sedang diubah tidak pernah ditimpa data dari server;
+    // (2) saat simpan, hanya kolom yang benar-benar diubah yang dikirim, sehingga nilai lama di layar tidak menimpa perubahan terbaru.
+    const KUNCI = [].concat(...GRUP.map(g => g[1]));
+    let dasar = {}, disentuh = false;
+    const ubahCache = fn => { const c = App.Data.baca('set.ambil', {}); if (c) { fn(c.v); App.Data.tulis('set.ambil', {}, c.v); } App.Data.basi('set.'); };
+    const gambar = d => {
+      const S = d.setelan, G = d.rahasia.GEMINI_API_KEY, form = $('#f-set', el);
+      if (form && disentuh) {   // sedang diisi: perbarui hanya kolom yang belum diubah pengguna
+        KUNCI.forEach(k => { const inp = form.elements[k]; if (!inp || !S[k]) return; const v = String(S[k].nilai); if (inp.value === dasar[k]) inp.value = v; dasar[k] = v; });
+        return;
+      }
+      dasar = {}; KUNCI.forEach(k => { if (S[k]) dasar[k] = String(S[k].nilai); });
+      el.innerHTML = String(h`<div class="judul-hal"><div><div class="eyebrow">Administrasi</div><h1>Pengaturan</h1><p>Perubahan berlaku untuk seluruh pengguna dalam beberapa detik.</p></div>
         <button class="btn emas" data-aksi="simpan">${ikon('centang')} Simpan pengaturan</button></div>
       <form id="f-set" onsubmit="return false"><div class="kolom2s">${GRUP.map(g => h`<div class="kartu"><h3>${g[0]}</h3>${g[1].filter(k => S[k]).map(k => h`<div class="fld"><label class="f">${LBL[k] || S[k].ket}</label>
         ${k === 'mode_skor' ? h`<select class="in" name="${k}"><option value="parsial" ${S[k].nilai === 'parsial' ? 'selected' : ''}>Parsial</option><option value="semua" ${S[k].nilai === 'semua' ? 'selected' : ''}>Semua benar</option></select>`
@@ -160,35 +171,58 @@
           <div class="baris"><input class="in" id="gemini" type="text" name="kunci-api-gemini" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" style="-webkit-text-security:disc" placeholder="${G.ada ? 'Isi untuk mengganti' : 'Tempel kunci API'}" style="max-width:340px">
             <button class="btn biru" data-aksi="kunciAi">Simpan kunci</button>${G.ada ? h`<button class="btn garis" data-aksi="deteksiAi">${ikon('segar')} Periksa kunci & deteksi model</button><button class="btn garis" data-aksi="hapusAi">Hapus</button>` : ''}</div>
           <div id="ai-hasil" style="margin-top:10px"></div></div></div></form>`);
+      const f = $('#f-set', el), tandai = () => { disentuh = true; };
+      f.addEventListener('input', tandai); f.addEventListener('change', tandai);
+    };
     const tampilAi = r => {
       $('#ai-hasil', el).innerHTML = String(h`<p style="margin:0"><span class="pil hijau">${ikon('centang')} Kunci valid</span> Model dipakai: <b class="mono">${r.dipakai}</b>${r.dipakai === 'otomatis' ? h` (saat ini: <span class="mono">${r.disarankan}</span>)` : ''}</p>
         <div class="baris" style="margin-top:8px"><select class="in" id="ai-pilih" style="max-width:340px"><option value="otomatis" ${r.dipakai === 'otomatis' ? 'selected' : ''}>otomatis — selalu pilih yang terbaik (disarankan)</option>${r.tersedia.map(m => h`<option value="${m}" ${m === r.dipakai ? 'selected' : ''}>${m}</option>`)}</select>
           <button class="btn garis" data-aksi="pakaiAi">Pakai model ini</button></div>
         <p class="kecil" style="margin:6px 0 0">Daftar diambil langsung dari Google untuk kunci ini. Jika nama model suatu saat tidak berlaku, server mendeteksi ulang secara otomatis.</p>`);
     };
-    const deteksi = async () => { const r = await api('ai.model', {}); App.Data.basi('ai.'); App.Data.basi('set.'); tampilAi(r); return r; };
+    const pakaiModel = m => {   // model Gemini bisa berubah lewat tombol AI → selaraskan kolom gemini_model tanpa menimpa isian pengguna
+      const inp = $('#f-set', el) && $('#f-set', el).elements.gemini_model;
+      if (inp && inp.value === dasar.gemini_model) inp.value = m;
+      dasar.gemini_model = m; ubahCache(v => { if (v.setelan.gemini_model) v.setelan.gemini_model.nilai = m; });
+    };
+    const deteksi = async () => { const r = await api('ai.model', {}); App.Data.basi('ai.'); pakaiModel(r.dipakai); tampilAi(r); return r; };
     App.aksi(el, {
-      simpan: b => App.sibuk(b, async () => { const f = App.nilaiForm($('#f-set', el)); delete f.gemini; await api('set.simpan', { setelan: f }); App.konfig = await api('app.konfig', {}); App.LS.set('konfig', App.konfig); }),
+      simpan: b => App.sibuk(b, async () => {
+        const form = $('#f-set', el), ubah = {};
+        KUNCI.forEach(k => { const inp = form.elements[k]; if (inp && dasar[k] !== undefined && inp.value.trim() !== dasar[k].trim()) ubah[k] = inp.value; });
+        if (!Object.keys(ubah).length) { toast('Tidak ada perubahan untuk disimpan.', 'warn'); return; }
+        await api('set.simpan', { setelan: ubah });
+        Object.keys(ubah).forEach(k => { dasar[k] = ubah[k].trim(); });
+        ubahCache(v => Object.keys(ubah).forEach(k => { if (v.setelan[k]) v.setelan[k].nilai = ubah[k].trim(); }));
+        App.konfig = await api('app.konfig', {}); App.LS.set('konfig', App.konfig);
+      }),
       kunciAi: b => App.sibuk(b, async () => {
         const v = $('#gemini', el).value.trim(); if (!v) throw new Error('Kunci kosong.');
         await api('rahasia.simpan', { kunci: 'GEMINI_API_KEY', nilai: v }); $('#gemini', el).value = '';
-        App.Data.basi('ai.');
+        App.Data.basi('ai.'); ubahCache(x => { x.rahasia.GEMINI_API_KEY = { ada: true, samar: v.slice(0, 4) + '••••••' + v.slice(-3) }; });
         const st = $('#ai-status', el);
         try { await deteksi(); if (st) st.innerHTML = String(h`<span class="pil hijau">Terpasang dan valid</span>`); }
         catch (e) { if (st) st.innerHTML = String(h`<span class="pil merah">Tersimpan, tetapi belum bisa dipakai</span>`); $('#ai-hasil', el).innerHTML = String(h`<p class="kecil" style="color:var(--bad);margin:0">${ikon('awas')} ${e.message}</p>`); }
       }),
       deteksiAi: b => App.sibuk(b, () => deteksi()),
-      pakaiAi: b => App.sibuk(b, async () => { const r = await api('ai.model', { simpan: true, model: $('#ai-pilih', el).value }); App.Data.basi('ai.'); App.Data.basi('set.'); tampilAi(r); }),
-      hapusAi: async b => { if (await App.konfirmasi('Hapus kunci API?', 'Generator AI guru tidak dapat dipakai sampai kunci diisi lagi.', 'Hapus', 'bahaya')) App.sibuk(b, async () => { await api('rahasia.simpan', { kunci: 'GEMINI_API_KEY', nilai: '__HAPUS__' }); App.Data.basi('ai.'); App.render(); }); }
+      pakaiAi: b => App.sibuk(b, async () => { const r = await api('ai.model', { simpan: true, model: $('#ai-pilih', el).value }); App.Data.basi('ai.'); pakaiModel(r.dipakai); tampilAi(r); }),
+      hapusAi: async b => { if (await App.konfirmasi('Hapus kunci API?', 'Generator AI guru tidak dapat dipakai sampai kunci diisi lagi.', 'Hapus', 'bahaya')) App.sibuk(b, async () => {
+        await api('rahasia.simpan', { kunci: 'GEMINI_API_KEY', nilai: '__HAPUS__' }); App.Data.basi('ai.');
+        ubahCache(v => { v.rahasia.GEMINI_API_KEY = { ada: false, samar: '' }; }); App.render(); }); }
     });
+    await App.ambil('set.ambil', {}, gambar, { segar: 60000 });
   };
 
   // =========================================================== SISTEM
   App.hal['sistem'] = async function (el) {
     el.innerHTML = String(App.kerangka(3));
-    const [s, cad, aud] = await Promise.all([App.apiQ('sistem.status', {}), App.apiQ('cadangan.daftar', {}), App.apiQ('audit.daftar', { batas: 150 })]);
+    // Tampil seketika dari data tersimpan, lalu diperbarui di latar (status 15 detik, audit 30 detik, daftar cadangan 1 menit).
+    // Status pekerja latar selalu dihitung segar oleh server; tombol Segarkan dan tombol pemeliharaan mengambil data terbaru.
+    let s, cad, aud;
+    const ada = { s: false, c: false, a: false }, coba = () => { if (ada.s && ada.c && ada.a) gambar(); };
+    const gambar = () => {
     el.innerHTML = String(h`<div class="judul-hal"><div><div class="eyebrow">Administrasi</div><h1>Sistem & cadangan</h1><p>Server versi ${s.versi} · API v${s.api} · aplikasi v${App.VERSI}</p></div>
-        <div class="baris"><a class="btn garis" href="${s.spreadsheet}" target="_blank" rel="noopener">${ikon('basis')} Buka spreadsheet</a><button class="btn emas" data-aksi="cadangan">${ikon('unduh')} Buat cadangan</button></div></div>
+        <div class="baris"><button class="btn garis" data-aksi="segarkan" title="Ambil data terbaru dari server">${ikon('segar')} Segarkan</button><a class="btn garis" href="${s.spreadsheet}" target="_blank" rel="noopener">${ikon('basis')} Buka spreadsheet</a><button class="btn emas" data-aksi="cadangan">${ikon('unduh')} Buat cadangan</button></div></div>
       <div class="kpi">
         <div class="kartu"><div class="lbl">Pekerja latar</div><div class="val" style="color:${s.trigger_ok ? 'var(--ok)' : 'var(--bad)'}">${s.trigger_ok ? 'Aktif' : 'Mati'}</div><small>${s.trigger.join(', ') || 'jalankan setupAppEnvironment'}</small></div>
         <div class="kartu"><div class="lbl">Sesi berlangsung</div><div class="val">${s.sesi_berlangsung}</div><small>saat ini</small></div>
@@ -203,9 +237,17 @@
         <div class="kartu"><h3>Cadangan (Google Drive)</h3>${cad.length ? cad.slice(0, 10).map(c => h`<a class="log-item" href="${c.url}" target="_blank" rel="noopener">${ikon('dokumen')}<div><b>${c.nama}</b><div class="kecil">${App.tglJam(c.waktu)}</div></div></a>`) : h`<p class="kecil">Belum ada cadangan. Cadangan otomatis dibuat setiap hari pukul 01.00.</p>`}</div></div>
       <div class="kartu" style="margin-top:16px"><h3>Jejak audit</h3><div class="tabel-wadah" style="max-height:420px;overflow:auto"><table class="t resp"><thead><tr><th>Waktu</th><th>Pengguna</th><th>Aksi</th><th>Detail</th></tr></thead><tbody>
         ${aud.map(a => h`<tr><td data-l="Waktu" class="kecil">${App.tglJam(a.waktu)}</td><td data-l="Pengguna">${a.pengguna}<div class="kecil">${a.peran}</div></td><td data-l="Aksi"><span class="pil garis">${a.aksi}</span></td><td data-l="Detail" class="kecil" style="max-width:360px;word-break:break-word">${a.detail}</td></tr>`)}</tbody></table></div></div>`);
+    };
+    // Ambil semua data segar sekaligus (daftar cadangan dibaca ulang dari Drive), simpan, lalu gambar ulang.
+    const segarkan = async () => {
+      const [a, b, c] = await Promise.all([App.apiQ('sistem.status', {}), App.apiQ('cadangan.daftar', { _fresh: 1 }), App.apiQ('audit.daftar', { batas: 150 })]);
+      App.Data.tulis('sistem.status', {}, a); App.Data.tulis('cadangan.daftar', {}, b); App.Data.tulis('audit.daftar', { batas: 150 }, c);
+      s = a; cad = b; aud = c; gambar();
+    };
     App.aksi(el, {
-      cadangan: b => App.sibuk(b, async () => { await api('cadangan.buat', {}, { batas: 120000 }); App.render(); }),
-      flush: b => App.sibuk(b, async () => { const r = await api('sistem.flush', {}); toast(r.hasil + ' pengumpulan dinilai.', 'ok'); App.render(); }),
+      segarkan: b => App.sibuk(b, segarkan),
+      cadangan: b => App.sibuk(b, async () => { await api('cadangan.buat', {}, { batas: 120000 }); await segarkan(); }),
+      flush: b => App.sibuk(b, async () => { const r = await api('sistem.flush', {}); toast(r.hasil + ' pengumpulan dinilai.', 'ok'); await segarkan(); }),
       sinkron: b => App.sibuk(b, async () => { const r = await api('paket.sinkronResmi', {}); toast('Sinkron selesai: ' + JSON.stringify(r), 'ok', 6000); App.Data.basi('paket'); }),
       bersihLokal: () => { App.Data.kosongkan(); toast('Tampilan tersimpan dikosongkan.', 'ok'); },
       ujiCepat: b => App.sibuk(b, async () => {
@@ -218,5 +260,9 @@
           <p class="kecil">Permintaan pertama setelah lama tidak dipakai biasanya lebih lama (server Google "bangun"). Setelah itu menu terbuka dari simpanan di perangkat.</p>` });
       })
     });
+    await Promise.all([
+      App.ambil('sistem.status', {}, v => { s = v; ada.s = true; coba(); }, { segar: 15000 }),
+      App.ambil('cadangan.daftar', {}, v => { cad = v; ada.c = true; coba(); }, { segar: 60000 }),
+      App.ambil('audit.daftar', { batas: 150 }, v => { aud = v; ada.a = true; coba(); }, { segar: 30000 })]);
   };
 })();

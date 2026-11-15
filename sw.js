@@ -3,12 +3,12 @@
  * config.js selalu dari jaringan bila bisa, permintaan ke Apps Script dan berkas paket soal TIDAK disentuh
  * (paket disimpan aplikasi di IndexedDB). Naikkan VERSI saat merilis pembaruan besar.
  */
-const VERSI = 'ktka-smp-1.4.2';
+const VERSI = 'ktka-smp-1.4.3';
 const INTI = [
-  './', './index.html', './manifest.json', './css/app.css?v=1.4.2', './js/config.js?v=1.4.2', './js/lib/render.js?v=1.4.2', './js/core.js?v=1.4.2',
-  './js/pages/masuk.js?v=1.4.2', './js/pages/siswa.js?v=1.4.2', './js/pages/ujian.js?v=1.4.2', './js/pages/rapor.js?v=1.4.2',
-  './js/pages/pengawas.js?v=1.4.2', './js/pages/guru.js?v=1.4.2', './js/pages/bank.js?v=1.4.2', './js/pages/laporan.js?v=1.4.2', './js/pages/admin.js?v=1.4.2', './js/pages/parametrik.js?v=1.4.2', './js/pages/kisi.js?v=1.4.2', './js/pages/survei.js?v=1.4.2',
-  './js/lib/katex/katex.min.css?v=1.4.2', './assets/logo-horizontal.webp', './assets/logo-bulat.webp', './assets/favicon.svg',
+  './', './index.html', './manifest.json', './css/app.css?v=1.4.3', './js/config.js?v=1.4.3', './js/lib/render.js?v=1.4.3', './js/core.js?v=1.4.3',
+  './js/pages/masuk.js?v=1.4.3', './js/pages/siswa.js?v=1.4.3', './js/pages/ujian.js?v=1.4.3', './js/pages/rapor.js?v=1.4.3',
+  './js/pages/pengawas.js?v=1.4.3', './js/pages/guru.js?v=1.4.3', './js/pages/bank.js?v=1.4.3', './js/pages/laporan.js?v=1.4.3', './js/pages/admin.js?v=1.4.3', './js/pages/parametrik.js?v=1.4.3', './js/pages/kisi.js?v=1.4.3', './js/pages/survei.js?v=1.4.3',
+  './js/lib/katex/katex.min.css?v=1.4.3', './assets/logo-horizontal.webp', './assets/logo-bulat.webp', './assets/favicon.svg',
   './assets/icon-192.png', './assets/icon-512.png', './assets/apple-touch-icon.png'
 ];
 
